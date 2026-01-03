@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router';
 import './LoginScreen.css';
 
 const LoginScreen = ({ onLogin, onSwitchToRegister }) => {
-  const navigate = useNavigate();
   const [form, setForm] = useState({ username: '', password: '', role: 'member' });
   const [error, setError] = useState('');
 
@@ -16,8 +14,7 @@ const LoginScreen = ({ onLogin, onSwitchToRegister }) => {
       return;
     }
 
-    // Call parent onLogin with navigate
-    onLogin(form, navigate);
+    onLogin(form);
   };
 
   return (
@@ -29,20 +26,12 @@ const LoginScreen = ({ onLogin, onSwitchToRegister }) => {
 
         <form onSubmit={handleSubmit}>
           <div className="role-selector">
-            <button
-              type="button"
+            <button type="button"
               className={form.role === 'admin' ? 'role-btn active' : 'role-btn'}
-              onClick={() => setForm({ ...form, role: 'admin' })}
-            >
-              Admin
-            </button>
-            <button
-              type="button"
+              onClick={() => setForm({ ...form, role: 'admin' })}>Admin</button>
+            <button type="button"
               className={form.role === 'member' ? 'role-btn active' : 'role-btn'}
-              onClick={() => setForm({ ...form, role: 'member' })}
-            >
-              Member
-            </button>
+              onClick={() => setForm({ ...form, role: 'member' })}>Member</button>
           </div>
 
           <div className="form-group">
@@ -63,16 +52,12 @@ const LoginScreen = ({ onLogin, onSwitchToRegister }) => {
             />
           </div>
 
-          <button type="submit" className="login-btn">
-            Sign In
-          </button>
+          <button type="submit" className="login-btn">Sign In</button>
         </form>
 
         <p className="switch-text">
           New member?{' '}
-          <button className="switch-btn" onClick={onSwitchToRegister}>
-            Register here
-          </button>
+          <button className="switch-btn" onClick={onSwitchToRegister}>Register here</button>
         </p>
       </div>
     </div>

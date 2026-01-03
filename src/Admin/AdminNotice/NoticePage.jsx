@@ -10,14 +10,16 @@ export  function NoticePage() {
   useEffect(() => {
     const fetchNotice = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/notice/1');
+        const response = await axios.get('http://localhost:8080/notice');
         setNotices(response.data)
+        console.log(response.data)
       } catch (error) {
         console.error(error);
       }
     };
     fetchNotice();
   }, [notices]); 
+
 
 
   
