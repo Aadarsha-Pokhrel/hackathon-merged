@@ -40,7 +40,7 @@ export  function NoticePage() {
 
   return (
     <div className="notice-page">
-      <h1 className="page-title">📢 Notices Feed</h1>
+      <h1 className="page-title"> Notices Feed</h1>
 
       {/* Create new notice */}
       <div className="make-notice">

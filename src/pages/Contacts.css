@@ -1,0 +1,127 @@
+
+
+.contacts-container {
+   /* adjust for sidebar if needed */
+  padding: 40px;
+  background-color: #f0fdf4; /* top padding for navbar + bottom */
+
+}
+
+.contacts-title {
+  text-align: center;
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 2rem;
+  
+}
+
+/* Contact list container */
+.contacts-list {
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+/* Individual contact card */
+.contact-card {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 1rem;
+  background-color: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  min-width: 400px;
+  max-width: 600px;
+  width: 100%;
+}
+
+.contact-card:hover {
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Avatar */
+.contact-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* Info section */
+.contact-info {
+  flex: 1;
+}
+
+.contact-name {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1f2937; /* gray-800 */
+  margin: 0;
+}
+
+.contact-details {
+  font-size: 0.875rem;
+  color: #6b7280; /* gray-500 */
+  margin-top: 0.25rem;
+}
+
+.contact-status {
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin-top: 0.5rem;
+}
+
+.contact-status.active {
+  color: #16a34a; /* green-600 */
+}
+
+.contact-status.inactive {
+  color: #9ca3af; /* gray-400 */
+}
+
+/* Actions for admin */
+.contact-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.btn {
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+}
+
+.edit-btn {
+  background-color: #3b82f6; /* blue-500 */
+  color: #fff;
+}
+
+.edit-btn:hover {
+  background-color: #2563eb; /* blue-600 */
+}
+
+.view-btn {
+  background-color: #6b7280; /* gray-500 */
+  color: #fff;
+}
+
+.view-btn:hover {
+  background-color: #4b5563; /* gray-600 */
+}
+
+/* Empty state */
+.no-contacts {
+  text-align: center;
+  color: #6b7280;
+  font-style: italic;
+}

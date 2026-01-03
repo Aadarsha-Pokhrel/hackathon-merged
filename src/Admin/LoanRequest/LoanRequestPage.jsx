@@ -77,7 +77,7 @@ export function LoanRequestPage() {
         </div>
         {sortedRequests.length === 0 && <p>No pending requests</p>}
         {sortedRequests.map(r => (
-          <div key={r.id} className="loan-card pending">
+          <div key={r.id} className="loan-card">
             <p className="loan-name">{r.name}</p>
             <p className="loan-amount">₹ {r.amount}</p>
             <p className="loan-time">{timeAgo(r.dateRequested)}</p>
