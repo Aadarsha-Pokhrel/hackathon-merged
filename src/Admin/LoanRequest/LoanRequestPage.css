@@ -1,0 +1,174 @@
+/* LoanRequestPage.css */
+
+/* Main Page */
+.loan-page {
+  flex-grow: 1;
+  padding: 20px;
+  background: #f0fdf4; /* light green background */
+  min-height: 100%;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Page Title */
+.page-title {
+  text-align: center;
+  font-size: 2rem;
+  color: #166534; /* dark green */
+  margin-bottom: 25px;
+}
+
+/* Sections */
+section {
+  margin-bottom: 30px;
+}
+
+/* Section Header with Sort Dropdown */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.section-header h2 {
+  font-size: 1.5rem;
+  color: #16a34a; /* green theme */
+}
+
+.section-header select {
+  padding: 5px 10px;
+  border-radius: 10px;
+  border: 1px solid #16a34a;
+  font-weight: 600;
+  background: white;
+  color: #065f46;
+  cursor: pointer;
+  outline: none;
+}
+
+/* Loan Card */
+.loan-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  padding: 15px 20px;
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.loan-name {
+  font-weight: 600;
+  color: #065f46;
+  flex: 1;
+}
+
+.loan-amount {
+  font-weight: 600;
+  color: #16a34a;
+  flex: 0.7;
+  text-align: center;
+}
+
+.loan-time {
+  font-size: 0.85rem;
+  color: #4ade80;
+  flex: 0.7;
+  text-align: center;
+}
+
+.loan-status {
+  font-weight: 600;
+  flex: 0.7;
+  text-align: center;
+}
+
+/* Pending Loan Actions */
+.loan-actions {
+  display: flex;
+  gap: 10px;
+  flex: 0.7;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.loan-actions button {
+  padding: 5px 12px;
+  border-radius: 10px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+
+.loan-actions .accept {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: white;
+}
+
+.loan-actions .accept:hover {
+  transform: translateY(-2px);
+}
+
+.loan-actions .reject {
+  background: #dc2626;
+  color: white;
+}
+
+.loan-actions .reject:hover {
+  transform: translateY(-2px);
+}
+
+/* Mark as Paid Button */
+.paid-btn {
+  background: linear-gradient(135deg, #059669, #16a34a);
+  color: white;
+  border: none;
+  padding: 5px 12px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-left: 10px;
+  transition: transform 0.1s;
+}
+
+.paid-btn:hover {
+  transform: translateY(-2px);
+}
+
+/* History Status Colors */
+.loan-card.approved .loan-status {
+  color: #16a34a;
+}
+
+.loan-card.rejected .loan-status {
+  color: #dc2626;
+}
+
+.loan-card.paid .loan-status {
+  color: #059669;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .loan-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .loan-actions, .paid-btn {
+    width: 100%;
+    justify-content: flex-start;
+  }
+  .loan-name, .loan-amount, .loan-time, .loan-status {
+    text-align: left;
+    flex: unset;
+  }
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+}
