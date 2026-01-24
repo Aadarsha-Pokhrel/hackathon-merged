@@ -102,7 +102,7 @@ function App() {
   }
 
   /* ---------- ADMIN ROUTES ---------- */
-  if (user.role === "admin") {
+  if (user.role === "Admin") {
     return (
       <Routes>
         <Route path="/admin" element={<AdminPage onLogout={handleLogout} />}>

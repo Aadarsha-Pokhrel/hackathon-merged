@@ -44,6 +44,11 @@ body {
   margin-bottom: 15px;
 }
 
+.user-role{
+  /* background-color: red; */
+  padding:5px;
+}
+
 .form-group label {
   display: block;
   margin-bottom: 5px;

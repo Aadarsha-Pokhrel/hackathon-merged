@@ -1,30 +1,45 @@
-import { useState } from "react";
-import { notices as initialNotices } from "../data/dummydata.js";
+import { useState, useEffect } from "react";
+import axios from "axios";
 import "./Notices.css";
 
 export default function Notices({ user }) {
-  const [notices] = useState(
-    initialNotices.map((n) => ({
-      ...n,
-      createdAt: new Date(n.createdAt),
-    }))
-  );
+  const [notices, setNotices] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  function timeAgo(date) {
-    const diff = (new Date() - date) / 1000;
-    if (diff < 60) return `${Math.floor(diff)}s ago`;
-    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-    return `${Math.floor(diff / 86400)}d ago`;
-  }
+  useEffect(() => {
+    const fetchNotices = async () => {
+      try {
+        setLoading(true);
+        const token = localStorage.getItem("token");
+
+        const res = await axios.get("http://localhost:8080/notice", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        console.log(res.data);
+
+        setNotices(res.data); // use backend dates as-is
+        setLoading(false);
+      } catch (err) {
+        console.error(err);
+        setError("Failed to load notices");
+        setLoading(false);
+      }
+    };
+
+    fetchNotices();
+  }, []);
+
+  if (loading) return <p>Loading notices...</p>;
+  if (error) return <p>{error}</p>;
 
   return (
-    <div className="notices-page">
+    <div  className="notices-page">
       <div className="notices-container">
         {/* Header */}
         <div className="notices-header">
-          <h1> Notices</h1>
-
+          <h1>Notices</h1>
           {user?.role === "admin" && (
             <button className="add-notice-btn">+ Add Notice</button>
           )}
@@ -33,22 +48,16 @@ export default function Notices({ user }) {
         {/* Notices list */}
         <div className="notices-list">
           {notices.map((notice) => (
-            <div className="notice-card" key={notice.id}>
-              {/* INTERNAL PADDING */}
+            <div key={notice.notice_id} className="notice-card">
               <div className="notice-inner">
-                {/* Header */}
                 <div className="notice-top">
                   <div className="notice-user">
                     <div className="avatar">
-                      {notice.postedBy?.charAt(0).toUpperCase() || "A"}
+                      {notice.noticeCreator?.charAt(0).toUpperCase() || "A"}
                     </div>
                     <div>
-                      <p className="posted-by">
-                        {notice.postedBy || "Admin"}
-                      </p>
-                      <p className="time">
-                        {timeAgo(notice.createdAt)}
-                      </p>
+                      <p className="posted-by">{notice.noticeCreator || "Admin"}</p>
+                      <p className="time">{notice.createdAt}</p>
                     </div>
                   </div>
 
@@ -60,26 +69,16 @@ export default function Notices({ user }) {
                   )}
                 </div>
 
-                {/* Title */}
-                {notice.title && (
-                  <h3 className="notice-title">{notice.title}</h3>
-                )}
+                {notice.title && <h3 className="notice-title">{notice.title}</h3>}
+                <p className="notice-content">{notice.purpose}</p>
 
-                {/* Content */}
-                <p className="notice-content">{notice.description}</p>
-
-                {/* Tags */}
                 <div className="notice-tags">
                   {notice.priority && (
                     <span className={`tag ${notice.priority}`}>
                       {notice.priority.toUpperCase()}
                     </span>
                   )}
-                  {notice.category && (
-                    <span className="tag category">
-                      {notice.category}
-                    </span>
-                  )}
+                  {notice.category && <span className="tag category">{notice.category}</span>}
                 </div>
               </div>
             </div>
