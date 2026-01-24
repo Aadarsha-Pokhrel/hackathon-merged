@@ -20,7 +20,7 @@
 .active-loans-container {
   padding: 20px;
   min-height: calc(100vh - 60px);
-  background: linear-gradient(180deg, #f0fdf4 0%, #e0e7ff 100%);
+  background: linear-gradient(135deg, #f0fdf4, #e0e7ff);
   transition: background 0.3s ease;
 }
 

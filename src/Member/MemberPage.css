@@ -30,7 +30,7 @@
 .member-layout {
   display: flex;
   min-height: 100vh;
-  background: linear-gradient(135deg, #e0e7ff, #f4f6f8);
+  background: linear-gradient(135deg, #f0fdf4, #e0e7ff);
 }
 
 /* =========================
