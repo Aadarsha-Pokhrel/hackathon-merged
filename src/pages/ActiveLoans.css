@@ -1,33 +1,113 @@
-/* Container with left margin for sidebar and top padding for navbar */
+/* =========================
+   VARIABLES
+========================= */
+:root {
+  --primary: #6366f1;
+  --primary-light: #7c76e4;
+  --primary-dark: #4f46e5;
+  --accent: #22c55e;
+  --bg-light: #f0fdf4;
+  --text-dark: #111827;
+  --text-light: #374151;
+  --card-bg: rgba(255,255,255,0.9);
+  --card-shadow: rgba(0,0,0,0.12);
+  --card-hover-shadow: rgba(99,102,241,0.3);
+}
+
+/* =========================
+   CONTAINER
+========================= */
 .active-loans-container {
-   /* 64 Tailwind equivalent */
-  
-  background-color: #f0fdf4; /* top padding for fixed navbar + horizontal padding */
   padding: 20px;
+  min-height: calc(100vh - 60px);
+  background: linear-gradient(180deg, #f0fdf4 0%, #e0e7ff 100%);
+  transition: background 0.3s ease;
 }
 
-/* Title */
+/* =========================
+   TITLE
+========================= */
 .active-loans-title {
-  font-size: 1.25rem; /* 20px */
+  font-size: 1.75rem; /* 28px */
   font-weight: 700;
-  margin-bottom: 1rem;
   text-align: center;
-  margin-top: 10px;
+  color: var(--primary-dark);
+  margin-bottom: 2rem;
+  text-shadow: 0 2px 6px rgba(0,0,0,0.15);
 }
 
-/* No loans text */
+/* =========================
+   NO LOANS TEXT
+========================= */
 .no-loans-text {
   text-align: center;
   color: #6b7280; /* gray-500 */
   font-style: italic;
   margin-top: 2rem;
+  font-size: 1.1rem;
 }
 
-/* Loan cards wrapper */
+/* =========================
+   LOAN CARDS WRAPPER
+========================= */
 .loan-cards-wrapper {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  max-width: 96rem; /* 6xl Tailwind equivalent */
+  gap: 1.5rem;
+  max-width: 1200px;
   margin: 0 auto;
+  padding: 0 10px;
+}
+
+/* =========================
+   LOAN CARD (assuming LoanCard has class loan-card)
+========================= */
+.loan-card {
+  background: var(--card-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 16px var(--card-shadow);
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-left: 4px solid var(--primary);
+}
+
+.loan-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px var(--card-hover-shadow);
+}
+
+/* =========================
+   CARD ELEMENTS
+========================= */
+.loan-card h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--primary-dark);
+}
+
+.loan-card p {
+  font-size: 0.95rem;
+  color: var(--text-light);
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+@media (max-width: 768px) {
+  .loan-cards-wrapper {
+    gap: 1rem;
+  }
+
+  .loan-card {
+    padding: 16px;
+  }
+
+  .active-loans-title {
+    font-size: 1.5rem;
+  }
 }

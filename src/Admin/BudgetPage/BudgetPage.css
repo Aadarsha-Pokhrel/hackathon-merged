@@ -1,63 +1,102 @@
-.budget-page {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
+/* =========================
+   RESET & BASE
+========================= */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: #f0fdf4; /* light green background */
 }
 
+/* =========================
+   PAGE LAYOUT
+========================= */
+.budget-page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+  min-height: 100vh;
+}
+
+/* =========================
+   PAGE TITLE
+========================= */
 .page-title {
   text-align: center;
-  font-size: 2rem;
-  color: #166534; /* dark green */
-  margin-bottom: 20px;
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: #166534;
+  margin-bottom: 2rem;
 }
 
+/* =========================
+   BUDGET SUMMARY
+========================= */
 .budget-summary {
   display: flex;
   gap: 20px;
   justify-content: center;
-  margin-bottom: 30px;
+  flex-wrap: wrap;
+  margin-bottom: 3rem;
 }
 
 .budget-card {
-  background: white;
-  padding: 20px 30px;
-  border-radius: 15px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  background: rgba(255, 255, 255, 0.95);
+  padding: 25px 35px;
+  border-radius: 20px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
   text-align: center;
+  flex: 1 1 200px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.budget-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 14px 30px rgba(22, 163, 74, 0.25);
 }
 
 .budget-card p {
   font-weight: 600;
+  font-size: 0.95rem;
   color: #16a34a;
 }
 
 .budget-card h2 {
-  margin-top: 5px;
-  font-size: 1.5rem;
+  margin-top: 8px;
+  font-size: 1.75rem;
   color: #065f46;
 }
 
+/* =========================
+   LOANS LIST
+========================= */
 .section-title {
-  font-size: 1.5rem;
+  font-size: 1.75rem;
   color: #166534;
-  margin-bottom: 15px;
+  margin-bottom: 1rem;
+  text-align: center;
 }
 
 .loan-list {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 18px;
 }
 
 .loan-card {
   display: flex;
   justify-content: space-between;
-  padding: 15px 20px;
-  background: white;
-  border-radius: 15px;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+  padding: 18px 25px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 18px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.07);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.loan-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px rgba(22, 163, 74, 0.15);
 }
 
 .loan-name {
@@ -71,6 +110,26 @@
 }
 
 .loan-time {
-  color: #4ade80;
   font-size: 0.85rem;
+  color: #4ade80;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+@media (max-width: 768px) {
+  .budget-summary {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .loan-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+
+  .loan-amount {
+    font-size: 1rem;
+  }
 }

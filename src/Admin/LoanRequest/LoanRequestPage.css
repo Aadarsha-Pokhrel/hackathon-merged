@@ -1,25 +1,39 @@
-/* LoanRequestPage.css */
-
-/* Main Page */
-.loan-page {
-  flex-grow: 1;
-  padding: 20px;
-  background: #f0fdf4; /* light green background */
-  min-height: 100%;
+/* =========================
+   RESET & BASE
+========================= */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* Page Title */
-.page-title {
-  text-align: center;
-  font-size: 2rem;
-  color: #166534; /* dark green */
-  margin-bottom: 25px;
+/* =========================
+   PAGE LAYOUT
+========================= */
+.loan-page {
+  flex-grow: 1;
+  padding: 2rem 1rem;
+  background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+  min-height: 100vh;
 }
 
-/* Sections */
+/* =========================
+   PAGE TITLE
+========================= */
+.page-title {
+  text-align: center;
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: #166534;
+  margin-bottom: 2rem;
+}
+
+/* =========================
+   SECTIONS
+========================= */
 section {
-  margin-bottom: 30px;
+  margin-bottom: 3rem;
 }
 
 /* Section Header with Sort Dropdown */
@@ -28,44 +42,55 @@ section {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 15px;
+  flex-wrap: wrap;
 }
 
 .section-header h2 {
   font-size: 1.5rem;
-  color: #16a34a; /* green theme */
+  color: #16a34a;
 }
 
 .section-header select {
-  padding: 5px 10px;
+  padding: 6px 14px;
   border-radius: 10px;
   border: 1px solid #16a34a;
   font-weight: 600;
   background: white;
-  color: #2fb08b;
+  color: #065f46;
   cursor: pointer;
   outline: none;
+  transition: all 0.2s ease;
 }
 
-/* Loan Card */
+.section-header select:hover {
+  border-color: #059669;
+}
+
+/* =========================
+   LOAN CARD
+========================= */
 .loan-card {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: rgb(230, 95, 95);
-  padding: 15px 20px;
-  border-radius: 15px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-  margin-bottom: 10px;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 18px 25px;
+  border-radius: 18px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+  margin-bottom: 12px;
   flex-wrap: wrap;
-  
-  
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.loan-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(22, 163, 74, 0.15);
 }
 
 .loan-name {
   font-weight: 600;
   color: #065f46;
   flex: 1;
-
 }
 
 .loan-amount {
@@ -98,12 +123,12 @@ section {
 }
 
 .loan-actions button {
-  padding: 5px 12px;
+  padding: 6px 14px;
   border-radius: 10px;
   border: none;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.1s;
+  transition: transform 0.15s ease;
 }
 
 .loan-actions .accept {
@@ -116,7 +141,7 @@ section {
 }
 
 .loan-actions .reject {
-  background: #dc2626;
+  background: linear-gradient(135deg, #ef4444, #dc2626);
   color: white;
 }
 
@@ -129,12 +154,12 @@ section {
   background: linear-gradient(135deg, #059669, #16a34a);
   color: white;
   border: none;
-  padding: 5px 12px;
+  padding: 6px 14px;
   border-radius: 10px;
   font-weight: 600;
   cursor: pointer;
   margin-left: 10px;
-  transition: transform 0.1s;
+  transition: transform 0.15s ease;
 }
 
 .paid-btn:hover {
@@ -154,21 +179,26 @@ section {
   color: #059669;
 }
 
-/* Responsive Design */
+/* =========================
+   RESPONSIVE
+========================= */
 @media (max-width: 768px) {
   .loan-card {
     flex-direction: column;
     align-items: flex-start;
     gap: 10px;
   }
+
   .loan-actions, .paid-btn {
     width: 100%;
     justify-content: flex-start;
   }
+
   .loan-name, .loan-amount, .loan-time, .loan-status {
     text-align: left;
     flex: unset;
   }
+
   .section-header {
     flex-direction: column;
     align-items: flex-start;

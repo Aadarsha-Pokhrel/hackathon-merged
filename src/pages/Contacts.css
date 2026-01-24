@@ -1,91 +1,133 @@
-
-
-.contacts-container {
-   /* adjust for sidebar if needed */
-  padding: 40px;
-  background-color: #f0fdf4; /* top padding for navbar + bottom */
-
+/* =========================
+   VARIABLES
+========================= */
+:root {
+  --primary: #6366f1;
+  --primary-light: #7c76e4;
+  --primary-dark: #4f46e5;
+  --accent-green: #22c55e;
+  --accent-gray: #9ca3af;
+  --bg-light: #f0fdf4;
+  --text-dark: #1f2937;
+  --text-light: #374151;
+  --card-bg: rgba(255,255,255,0.95);
+  --card-shadow: rgba(0,0,0,0.12);
+  --card-hover-shadow: rgba(99,102,241,0.2);
 }
 
+/* =========================
+   CONTAINER
+========================= */
+.contacts-container {
+  padding: 40px 20px;
+  min-height: calc(100vh - 60px);
+  background: linear-gradient(135deg, #f0fdf4, #e0e7ff);
+  transition: background 0.3s ease;
+}
+
+/* =========================
+   TITLE
+========================= */
 .contacts-title {
   text-align: center;
-  font-size: 2rem;
-  font-weight: bold;
-  margin-bottom: 2rem;
-  
+  font-size: 2.25rem;
+  font-weight: 700;
+  margin-bottom: 2.5rem;
+  color: var(--primary-dark);
+  text-shadow: 0 2px 6px rgba(0,0,0,0.15);
 }
 
-/* Contact list container */
+/* =========================
+   CONTACT LIST
+========================= */
 .contacts-list {
-  max-width: 900px;
+  max-width: 960px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.75rem;
   align-items: center;
 }
 
-/* Individual contact card */
+/* =========================
+   CONTACT CARD
+========================= */
 .contact-card {
   display: flex;
   align-items: center;
   gap: 1.5rem;
-  padding: 1.5rem;
-  border: 1px solid #e2e8f0;
+  padding: 1.5rem 1.75rem;
   border-radius: 1rem;
-  background-color: #fff;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-  transition: all 0.3s ease;
-  min-width: 400px;
-  max-width: 600px;
+  background: var(--card-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 4px 16px var(--card-shadow);
+  transition: all 0.3s ease, transform 0.35s ease;
   width: 100%;
+  max-width: 600px;
+  border-left: 4px solid var(--primary);
 }
 
 .contact-card:hover {
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px var(--card-hover-shadow);
+  border-left-color: var(--primary-light);
 }
 
-/* Avatar */
+/* =========================
+   AVATAR
+========================= */
 .contact-avatar {
-  width: 56px;
-  height: 56px;
+  width: 64px;
+  height: 64px;
   border-radius: 50%;
   object-fit: cover;
+  border: 2px solid var(--primary-light);
+  transition: all 0.3s ease;
 }
 
-/* Info section */
+.contact-card:hover .contact-avatar {
+  transform: scale(1.05);
+  border-color: var(--primary-dark);
+}
+
+/* =========================
+   CONTACT INFO
+========================= */
 .contact-info {
   flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .contact-name {
-  font-size: 1.125rem;
+  font-size: 1.25rem;
   font-weight: 600;
-  color: #1f2937; /* gray-800 */
-  margin: 0;
+  color: var(--text-dark);
 }
 
 .contact-details {
-  font-size: 0.875rem;
-  color: #6b7280; /* gray-500 */
-  margin-top: 0.25rem;
+  font-size: 0.95rem;
+  color: var(--text-light);
+  margin: 4px 0;
 }
 
 .contact-status {
-  font-size: 0.75rem;
+  font-size: 0.85rem;
   font-weight: 500;
-  margin-top: 0.5rem;
 }
 
 .contact-status.active {
-  color: #16a34a; /* green-600 */
+  color: var(--accent-green);
 }
 
 .contact-status.inactive {
-  color: #9ca3af; /* gray-400 */
+  color: var(--accent-gray);
 }
 
-/* Actions for admin */
+/* =========================
+   ADMIN ACTIONS
+========================= */
 .contact-actions {
   display: flex;
   gap: 0.75rem;
@@ -93,8 +135,8 @@
 
 .btn {
   padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
+  border-radius: 0.6rem;
+  font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -102,26 +144,57 @@
 }
 
 .edit-btn {
-  background-color: #3b82f6; /* blue-500 */
+  background: var(--primary);
   color: #fff;
+  box-shadow: 0 4px 12px rgba(99,102,241,0.3);
 }
 
 .edit-btn:hover {
-  background-color: #2563eb; /* blue-600 */
+  background: var(--primary-light);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 6px 18px rgba(99,102,241,0.35);
 }
 
 .view-btn {
-  background-color: #6b7280; /* gray-500 */
+  background: #6b7280;
   color: #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
 .view-btn:hover {
-  background-color: #4b5563; /* gray-600 */
+  background: #4b5563;
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.2);
 }
 
-/* Empty state */
+/* =========================
+   EMPTY STATE
+========================= */
 .no-contacts {
   text-align: center;
   color: #6b7280;
   font-style: italic;
+  font-size: 1.05rem;
+  margin-top: 2rem;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+@media (max-width: 768px) {
+  .contact-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.25rem 1.5rem;
+  }
+
+  .contact-avatar {
+    width: 56px;
+    height: 56px;
+  }
+
+  .contacts-title {
+    font-size: 1.9rem;
+  }
 }
