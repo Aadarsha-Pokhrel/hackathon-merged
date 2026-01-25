@@ -18,6 +18,8 @@ import Contacts from "./pages/Contacts";
 import LoginScreen from "./components/LoginScreen";
 import RegisterScreen from "./components/RegisterScreen";
 
+import CreateLoanRequest from "./pages/CreateLoanRequest";
+
 function App() {
   const [user, setUser] = useState(null); // memory-only auth
   const [showRegister, setShowRegister] = useState(false);
@@ -102,7 +104,7 @@ function App() {
   }
 
   /* ---------- ADMIN ROUTES ---------- */
-  if (user.role === "Admin") {
+  if (user.role === "ADMIN") {
     return (
       <Routes>
         <Route path="/admin" element={<AdminPage onLogout={handleLogout} />}>
@@ -111,6 +113,7 @@ function App() {
           <Route path="budget" element={<BudgetPage />} />
           <Route path="loanRequest" element={<LoanRequestPage />} />
           <Route path="membersdetails" element={<MembersPage />} />
+          
         </Route>
 
         <Route path="*" element={<Navigate to="/admin" replace />} />
@@ -126,6 +129,7 @@ function App() {
         <Route path="activeloans" element={<ActiveLoans user={user} />} />
         <Route path="notices" element={<Notices user={user} />} />
         <Route path="contacts" element={<Contacts user={user} />} />
+        <Route path = "createrequest" element = {<CreateLoanRequest user={user} />}/>
       </Route>
 
       <Route path="*" element={<Navigate to="/member" replace />} />

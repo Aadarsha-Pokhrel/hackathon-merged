@@ -7,7 +7,7 @@ const RegisterScreen = ({ onRegister, onSwitchToLogin }) => {
     name: "",
     phonenumber: "",
     password: "",
-    role: "Member",
+    role: "USER",
   });
 
   const [error, setError] = useState("");
@@ -32,7 +32,7 @@ const RegisterScreen = ({ onRegister, onSwitchToLogin }) => {
         name: "",
         phonenumber: "",
         password: "",
-        role: "Member",
+        role: "USER",
       });
     } catch (err) {
       setError(err.response?.data || "Registration failed");
@@ -55,8 +55,8 @@ const RegisterScreen = ({ onRegister, onSwitchToLogin }) => {
               value={form.role}
               onChange={(e) => setForm({ ...form, role: e.target.value })}
             >
-              <option value="Member">Member</option>
-              <option value="Admin">Admin</option>
+              <option value="USER">Member</option>
+              <option value="ADMIN">Admin</option>
             </select>
           </div>
 

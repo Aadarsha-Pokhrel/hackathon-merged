@@ -5,11 +5,12 @@ import "./Navbar.css";
 
 const Navbar = ({ user, onLogout }) => {
   const navLinks = [
-    { name: "Home", path: "/" },
-    { name: "Notices", path: "/notices" },
-    { name: "Loan", path: "/activeloans" },
-    { name: "Contact", path: "/contacts" },
-  ];
+  { name: "Home", path: "/member" },
+  { name: "Notices", path: "/member/notices" },
+  { name: "Loan", path: "/member/activeloans" },
+  { name: "Contact", path: "/member/contacts" },
+  { name: "Create Request", path: "/member/createrequest" }, // <-- correct path
+];
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);

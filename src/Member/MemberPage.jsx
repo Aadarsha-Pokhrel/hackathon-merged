@@ -23,14 +23,15 @@ export function MemberPage({ onLogout }) {
         </div>
       </div>
 
-      <aside className={`sidebar ${menuOpen ? "open" : ""}`}>
-        <h2 className="sidebar-title">Member</h2>
-        <Link to="/member" onClick={() => setMenuOpen(false)}>Dashboard</Link>
-        <Link to="/member/notices" onClick={() => setMenuOpen(false)}>Notices</Link>
-        <Link to="/member/activeloans" onClick={() => setMenuOpen(false)}>My Loans</Link>
-        <Link to="/member/contacts" onClick={() => setMenuOpen(false)}>Contact</Link>
-        <button className="logout-button" onClick={handleLogout}>Logout</button>
-      </aside>
+    <aside className={`sidebar ${menuOpen ? "open" : ""}`}>
+      <h2 className="sidebar-title">Member</h2>
+      <Link to="/member" onClick={() => setMenuOpen(false)}>Dashboard</Link>
+      <Link to="/member/notices" onClick={() => setMenuOpen(false)}>Notices</Link>
+      <Link to="/member/activeloans" onClick={() => setMenuOpen(false)}>My Loans</Link>
+      <Link to="/member/contacts" onClick={() => setMenuOpen(false)}>Contact</Link>
+      <Link to="/member/createrequest" onClick={() => setMenuOpen(false)}>Create Request</Link> {/* <-- add this */}
+      <button className="logout-button" onClick={handleLogout}>Logout</button>
+    </aside>
 
       <main className="content" onClick={() => menuOpen && setMenuOpen(false)}>
         <Outlet />
