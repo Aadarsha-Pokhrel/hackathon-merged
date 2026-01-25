@@ -7,7 +7,7 @@ const ActiveLoans = ({ user }) => {
   const currentMemberId = user?.id || 1;
 
   const myLoanHistory =
-    user?.role === 'admin'
+    user?.role === 'admin'  
       ? loanHistory
       : loanHistory.filter((loan) => loan.memberId === currentMemberId);
 

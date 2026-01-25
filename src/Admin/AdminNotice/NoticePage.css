@@ -113,7 +113,7 @@
 }
 
 /* Notice content */
-.notice-content {
+.notice-content,.notice-type{
   font-size: 1rem;
   color: #065f46; /* dark green content */
   white-space: pre-wrap;

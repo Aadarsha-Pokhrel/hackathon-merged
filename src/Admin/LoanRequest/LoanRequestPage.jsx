@@ -1,65 +1,137 @@
-import { useState } from "react";
-import { loanRequests as initialRequests, loanHistory as initialHistory ,loans as initialLoan} from "./loans.js";
+import { useState, useEffect } from "react";
+import axios from "axios";
 import "./LoanRequestPage.css";
 
 export function LoanRequestPage() {
-  const [requests, setRequests] = useState(initialRequests);
-  const [history, setHistory] = useState(initialHistory);
-  const [loans,setLoan] = useState(initialLoan);
+  const [requests, setRequests] = useState([]);
+  const [history, setHistory] = useState([]);
+  const [loans, setLoans] = useState([]);
 
-  // Sort state
   const [requestSort, setRequestSort] = useState("latest");
   const [historySort, setHistorySort] = useState("latest");
 
-  function timeAgo(date) {
+  const token = localStorage.getItem("token"); // JWT token
+
+  // -----------------------------
+  // Format backend LoanRequest
+  // -----------------------------
+  const formatLoanRequest = (loan) => ({
+    id: loan.loanReqId,
+    name: loan.users?.name || "Unknown", // backend field is `users`
+    amount: loan.Amount || 0,            // backend field is `Amount`
+    dateRequested: loan.createdAt,
+    status: loan.status?.toUpperCase() || "PENDING",
+  });
+
+  // Format backend active Loan
+  const formatActiveLoan = (loan) => ({
+    id: loan.loanId,
+    name: loan.users?.name || "Unknown",
+    amount: loan.Amount || 0,
+    dateRequested: loan.createdAt || loan.startDate,
+    status: "APPROVED",
+  });
+
+  // -----------------------------
+  // Fetch data from backend
+  // -----------------------------
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // 1️⃣ Pending + history from loan requests
+        const resRequests = await axios.get(
+          "http://localhost:8080/admin/loan-requests",
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        const allRequests = (resRequests.data || []).map(formatLoanRequest);
+
+        setRequests(allRequests.filter((r) => r.status === "PENDING"));
+        setHistory(allRequests.filter((r) => r.status !== "PENDING"));
+
+        // 2️⃣ Active loans
+        const resActive = await axios.get(
+          "http://localhost:8080/admin/loans/active",
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        const activeLoans = (resActive.data || []).map(formatActiveLoan);
+        setLoans(activeLoans);
+      } catch (err) {
+        console.error("Failed to fetch loans:", err);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  // -----------------------------
+  // Time ago formatting
+  // -----------------------------
+  const timeAgo = (date) => {
     const diff = (new Date() - new Date(date)) / 1000;
     if (diff < 60) return `${Math.floor(diff)}s ago`;
     if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
     if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
     return `${Math.floor(diff / 86400)}d ago`;
-  }
+  };
 
-  function handleAction(r, action) {
-  const updatedRequest = { ...r, status: action };
+  // -----------------------------
+  // Approve / Reject loan
+  // -----------------------------
+  const handleAction = async (loan, action) => {
+    try {
+      const endpoint =
+        action === "APPROVED"
+          ? `http://localhost:8080/admin/approve/${loan.id}`
+          : `http://localhost:8080/admin/reject/${loan.id}`;
 
-  if (action === "approved") {
-    setLoan(prevLoans => [
-      {
-        id: r.id,
-        name: r.name,
-        amount: r.amount,
-        dateTaken: r.dateRequested,
-      },
-      ...prevLoans,
-    ]);
-  }
+      await axios.post(endpoint, {}, { headers: { Authorization: `Bearer ${token}` } });
 
-  setHistory(prev => [updatedRequest, ...prev]);
-  setRequests(prev => prev.filter(request => request.id !== r.id));
-}
+      // Update frontend state
+      if (action === "APPROVED") {
+        setLoans(prev => [{ ...loan, status: "APPROVED" }, ...prev]);
+      }
+      setRequests(prev => prev.filter(r => r.id !== loan.id));
+      setHistory(prev => [{ ...loan, status: action }, ...prev]);
+    } catch (err) {
+      console.error(`Failed to ${action} loan:`, err);
+    }
+  };
 
+  // -----------------------------
+  // Mark loan as paid
+  // -----------------------------
+  const markAsPaid = (id) => {
+    // Remove from active loans
+    const paidLoan = loans.find(l => l.id === id);
+    if (!paidLoan) return;
 
-  function markAsPaid(id) {
-    setHistory(history.map(r => r.id === id ? { ...r, status: "paid" } : r));
-  }
+    setLoans(prev => prev.filter(l => l.id !== id));
 
-  // Sorting functions
-  const sortedRequests = [...requests].sort((a, b) => {
-    if (requestSort === "latest") return new Date(b.dateRequested) - new Date(a.dateRequested);
-    if (requestSort === "oldest") return new Date(a.dateRequested) - new Date(b.dateRequested);
-    if (requestSort === "highest") return b.amount - a.amount;
-    if (requestSort === "lowest") return a.amount - b.amount;
-    return 0;
-  });
+    // Add to history with status PAID
+    setHistory(prev => [{ ...paidLoan, status: "PAID" }, ...prev]);
+  };
 
-  const sortedHistory = [...history].sort((a, b) => {
-    if (historySort === "latest") return new Date(b.dateRequested) - new Date(a.dateRequested);
-    if (historySort === "oldest") return new Date(a.dateRequested) - new Date(b.dateRequested);
-    if (historySort === "highest") return b.amount - a.amount;
-    if (historySort === "lowest") return a.amount - b.amount;
-    return 0;
-  });
+  // -----------------------------
+  // Sorting
+  // -----------------------------
+  const sortItems = (items, sort, dateKey = "dateRequested") => {
+    return [...items].sort((a, b) => {
+      if (sort === "latest") return new Date(b[dateKey]) - new Date(a[dateKey]);
+      if (sort === "oldest") return new Date(a[dateKey]) - new Date(b[dateKey]);
+      if (sort === "highest") return b.amount - a.amount;
+      if (sort === "lowest") return a.amount - b.amount;
+      return 0;
+    });
+  };
 
+  const sortedRequests = sortItems(requests, requestSort);
+  const sortedHistory = sortItems(history, historySort);
+
+  // -----------------------------
+  // JSX
+  // -----------------------------
   return (
     <div className="loan-page">
       <h1 className="page-title">💸 Loan Requests</h1>
@@ -76,29 +148,31 @@ export function LoanRequestPage() {
           </select>
         </div>
         {sortedRequests.length === 0 && <p>No pending requests</p>}
-        {sortedRequests.map(r => (
+        {sortedRequests.map((r) => (
           <div key={r.id} className="loan-card">
             <p className="loan-name">{r.name}</p>
             <p className="loan-amount">₹ {r.amount}</p>
             <p className="loan-time">{timeAgo(r.dateRequested)}</p>
             <div className="loan-actions">
-              <button className="accept" onClick={() => handleAction(r, "approved")}>Accept</button>
-              <button className="reject" onClick={() => handleAction(r, "rejected")}>Reject</button>
+              <button className="accept" onClick={() => handleAction(r, "APPROVED")}>Accept</button>
+              <button className="reject" onClick={() => handleAction(r, "REJECTED")}>Reject</button>
             </div>
           </div>
         ))}
       </section>
 
+      {/* Active Loans */}
       <h2 className="section-title">Active Loans Taken</h2>
       <div className="loan-list">
-        {loans.map((loan) => (
-          <div key={loan.id} className="loan-card">
-            <p className="loan-name">{loan.name}</p>
-            <p className="loan-amount">₹ {loan.amount}</p>
-            <p className="loan-time">{timeAgo(loan.dateTaken)}</p>
+        {loans.map((l) => (
+          <div key={l.id} className="loan-card">
+            <p className="loan-name">{l.name}</p>
+            <p className="loan-amount">₹ {l.amount}</p>
+            <p className="loan-time">{timeAgo(l.dateRequested)}</p>
+            <button className="paid-btn" onClick={() => markAsPaid(l.id)}>Mark as Paid</button>
           </div>
         ))}
-      </div>  
+      </div>
 
       {/* Loan History */}
       <section className="history-section">
@@ -112,15 +186,12 @@ export function LoanRequestPage() {
           </select>
         </div>
         {sortedHistory.length === 0 && <p>No history yet</p>}
-        {sortedHistory.map(r => (
+        {sortedHistory.map((r) => (
           <div key={r.id} className={`loan-card ${r.status}`}>
             <p className="loan-name">{r.name}</p>
             <p className="loan-amount">₹ {r.amount}</p>
-            <p className="loan-status">{r.status.toUpperCase()}</p>
+            <p className="loan-status">{r.status}</p>
             <p className="loan-time">{timeAgo(r.dateRequested)}</p>
-            {r.status === "approved" && (
-              <button className="paid-btn" onClick={() => markAsPaid(r.id)}>Mark as Paid</button>
-            )}
           </div>
         ))}
       </section>

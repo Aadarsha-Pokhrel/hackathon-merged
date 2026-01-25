@@ -22,7 +22,7 @@ export function NoticePage() {
           ...notice,
           createdAt: notice.createdAt ? new Date(notice.createdAt) : new Date(),
         }));
-
+        // console.log(data)
         setNotices(data);
       } catch (err) {
         console.error(err);
@@ -109,6 +109,7 @@ export function NoticePage() {
             </div>
 
             <div className="notice-content">{notice.purpose}</div>
+            <div className="notice-type">{notice.type}</div>
           </div>
         ))}
       </div>

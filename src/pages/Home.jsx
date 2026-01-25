@@ -6,7 +6,7 @@ import "./Home.css";
 
 
 const Home = ({ user }) => {  // Accept user prop from App.jsx
-
+    
     const currentMemberId = user?.id || 1;
     const myLoans = loans.filter((loan) => loan.memberId === currentMemberId);
 

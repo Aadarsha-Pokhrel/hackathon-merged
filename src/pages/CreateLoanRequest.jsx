@@ -1,7 +1,7 @@
 // src/pages/LoanRequest.jsx
 import { useState } from "react";
 import axios from "axios";
-// import "./LoanRequest.css";
+import "./CreateLoanRequest.css";
 
 const CreateLoanRequest = ({ user }) => {
   const [Amount, setAmount] = useState("");
