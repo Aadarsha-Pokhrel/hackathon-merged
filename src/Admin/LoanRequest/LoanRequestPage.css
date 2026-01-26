@@ -1,6 +1,3 @@
-/* =========================
-   RESET & BASE
-========================= */
 * {
   margin: 0;
   padding: 0;
@@ -8,19 +5,13 @@
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* =========================
-   PAGE LAYOUT
-========================= */
 .loan-page {
   flex-grow: 1;
-  padding: 2rem 1rem;
+  padding: 2rem;
   background: linear-gradient(135deg, #f0fdf4, #dcfce7);
   min-height: 100vh;
 }
 
-/* =========================
-   PAGE TITLE
-========================= */
 .page-title {
   text-align: center;
   font-size: 2.25rem;
@@ -29,20 +20,11 @@
   margin-bottom: 2rem;
 }
 
-/* =========================
-   SECTIONS
-========================= */
-section {
-  margin-bottom: 3rem;
-}
-
-/* Section Header with Sort Dropdown */
 .section-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
   margin-bottom: 15px;
-  flex-wrap: wrap;
 }
 
 .section-header h2 {
@@ -50,25 +32,6 @@ section {
   color: #16a34a;
 }
 
-.section-header select {
-  padding: 6px 14px;
-  border-radius: 10px;
-  border: 1px solid #16a34a;
-  font-weight: 600;
-  background: white;
-  color: #065f46;
-  cursor: pointer;
-  outline: none;
-  transition: all 0.2s ease;
-}
-
-.section-header select:hover {
-  border-color: #059669;
-}
-
-/* =========================
-   LOAN CARD
-========================= */
 .loan-card {
   display: flex;
   justify-content: space-between;
@@ -113,7 +76,6 @@ section {
   text-align: center;
 }
 
-/* Pending Loan Actions */
 .loan-actions {
   display: flex;
   gap: 10px;
@@ -122,7 +84,8 @@ section {
   flex-wrap: wrap;
 }
 
-.loan-actions button {
+.loan-actions button,
+.paid-btn {
   padding: 6px 14px;
   border-radius: 10px;
   border: none;
@@ -136,72 +99,23 @@ section {
   color: white;
 }
 
-.loan-actions .accept:hover {
-  transform: translateY(-2px);
-}
-
 .loan-actions .reject {
   background: linear-gradient(135deg, #ef4444, #dc2626);
   color: white;
 }
 
-.loan-actions .reject:hover {
-  transform: translateY(-2px);
-}
-
-/* Mark as Paid Button */
 .paid-btn {
   background: linear-gradient(135deg, #059669, #16a34a);
   color: white;
-  border: none;
-  padding: 6px 14px;
-  border-radius: 10px;
-  font-weight: 600;
-  cursor: pointer;
   margin-left: 10px;
-  transition: transform 0.15s ease;
 }
 
-.paid-btn:hover {
-  transform: translateY(-2px);
-}
+.loan-card.approved .loan-status { color: #16a34a; }
+.loan-card.rejected .loan-status { color: #dc2626; }
+.loan-card.paid .loan-status { color: #059669; }
 
-/* History Status Colors */
-.loan-card.approved .loan-status {
-  color: #16a34a;
-}
-
-.loan-card.rejected .loan-status {
-  color: #dc2626;
-}
-
-.loan-card.paid .loan-status {
-  color: #059669;
-}
-
-/* =========================
-   RESPONSIVE
-========================= */
 @media (max-width: 768px) {
-  .loan-card {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-  }
-
-  .loan-actions, .paid-btn {
-    width: 100%;
-    justify-content: flex-start;
-  }
-
-  .loan-name, .loan-amount, .loan-time, .loan-status {
-    text-align: left;
-    flex: unset;
-  }
-
-  .section-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-  }
+  .loan-card { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .loan-actions, .paid-btn { width: 100%; justify-content: flex-start; }
+  .loan-name, .loan-amount, .loan-time, .loan-status { text-align: left; flex: unset; }
 }

@@ -1,15 +1,15 @@
-import React from "react";
+
 import "./LoanCard.css";
 
-const LoanCard = ({ loan }) => {
+const LoanCard = ({ user }) => {
   return (
     <div className="loan-card">
       {/* Header */}
       <div className="loan-card-header">
         <div>
-          <h3 className="loan-title">{loan.purpose}</h3>
+          <h3 className="loan-title">{user.loanPurpose }</h3>
           <p className="loan-approved-date">
-            Approved: {loan.approvedDate}
+            Approved: {user.startdate}
           </p>
         </div>
 
@@ -21,71 +21,72 @@ const LoanCard = ({ loan }) => {
         <div className="loan-detail">
           <p className="loan-label">Principal Amount</p>
           <p className="loan-value">
-            NPR {loan.amount.toLocaleString()}
+            NPR {user.principal.toLocaleString()}
           </p>
         </div>
 
         <div className="loan-detail">
           <p className="loan-label">Interest Rate</p>
           <p className="loan-value">
-            {loan.interestRate}% per year
+            {user.interestRate}% per year
           </p>
         </div>
 
         <div className="loan-detail">
           <p className="loan-label">Duration</p>
           <p className="loan-value">
-            {loan.duration} months
+            {user.durationMonths} months
           </p>
         </div>
 
         <div className="loan-detail">
           <p className="loan-label">Due Date</p>
           <p className="loan-value">
-            {loan.dueDate}
+            After one month 
+             {/* I will calculate it later */}
           </p>
         </div>
       </div>
 
       {/* Repayment section */}
-      <div className="repayment-box">
+      {/* <div className="repayment-box">
         <div className="repayment-header">
           <span className="repayment-title">Repayment Status</span>
           <span className="repayment-type">
-            {loan.repaymentType === "monthly"
+            {user.repaymentType === "monthly"
               ? "Monthly Installments"
               : "Lump Sum at End"}
           </span>
-        </div>
+        </div> */}
 
-        <div className="repayment-details">
+        {/* <div className="repayment-details">
           <div className="repayment-row">
             <span>Paid:</span>
             <span className="paid-amount">
-              NPR {loan.paidAmount.toLocaleString()}
+              NPR {user.paidAmount.toLocaleString()}
             </span>
-          </div>
+          </div> */}
 
-          <div className="repayment-row">
+          {/* <div className="repayment-row">
             <span>Remaining Principal:</span>
             <span className="remaining-amount">NPR </span>
-          </div>
+          </div> */}
 
-          <div className="repayment-row">
+          {/* <div className="repayment-row">
             <span>Total Interest:</span>
             <span className="interest-amount">NPR </span>
-          </div>
+          </div> */}
 
-          <div className="repayment-row repayment-total">
+          {/* <div className="repayment-row repayment-total">
             <span>
-              {loan.repaymentType === "monthly"
+              {user.repaymentType === "monthly"
                 ? "Monthly Payment:"
                 : "Monthly Interest:"}
-            </span>
-            <span className="monthly-payment">NPR </span>
-          </div>
-        </div>
-      </div>
+            </span> */}
+            {/* <span className="monthly-payment">NPR </span> */}
+          {/* </div> */}
+        {/* </div>
+      </div> */}
     </div>
   );
 };
