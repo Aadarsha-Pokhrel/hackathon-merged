@@ -1,0 +1,15 @@
+[33me8431e0[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m Refactor CSS class names for better specificity and avoid global conflicts; update layout styles for Admin and Member pages, and enhance component styles across the application.
+[33me6c6ee0[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m [some ui changes]
+[33m570b85d[m Enhance HeroMemberCard styles with new background gradient, improved hover effects, and updated typography for better visual appeal
+[33med40b5b[m Add global styles and animations for app polish
+[33m191c8b7[m [admin dashbord created by data from backend]
+[33m39e9a62[m [Active loan shown from the backend]
+[33m35d1ae1[m [This is just a test]
+[33m8394b12[m [Loan request send to the admin]
+[33m4b347c2[m [loan posted in the backend]
+[33m71eb3ed[m [background color changes]
+[33m433d2a5[m [Css changes]
+[33mf423d5e[m [mvp created]
+[33m685a3f4[m register and login page connected to the backend
+[33m49fc62d[m [Basic frontend created]
+[33m527a77b[m Merged admin and member

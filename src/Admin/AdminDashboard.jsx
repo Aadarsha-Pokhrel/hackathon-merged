@@ -45,16 +45,14 @@ export function AdminDashboard() {
           notices: noticesRes.data.length,
         });
 
-        const approved = historyRes.data.filter((h) => h.status === "Approved")
-          .length;
-        const rejected = historyRes.data.filter((h) => h.status === "Rejected")
-          .length;
+        const paid = historyRes.data.filter((h) => h.status?.toLowerCase() === "paid").length;
+        const rejected = historyRes.data.filter((h) => h.status?.toLowerCase() === "rejected").length;
         const active = activeLoansRes.data.length;
 
         setLoanData([
-          { name: "Approved", value: approved },
-          { name: "Rejected", value: rejected },
           { name: "Active", value: active },
+          { name: "Paid", value: paid },
+          { name: "Rejected", value: rejected },
         ]);
 
         const recent = historyRes.data
@@ -74,9 +72,9 @@ export function AdminDashboard() {
     };
 
     fetchDashboardData();
-  }, []); 
+  }, []);
 
-  const COLORS = ["#10b981", "#f43f5e", "#6366f1"]; // emerald-500, rose-500, indigo-500
+  const COLORS = ["#10b981", "#3b82f6", "#f43f5e"]; // emerald (Active), blue (Paid), rose (Rejected)
 
   return (
     <div className="space-y-8">
@@ -89,34 +87,34 @@ export function AdminDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card hoverEffect className="relative overflow-hidden group">
           <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-             <div className="w-20 h-20 bg-indigo-500 rounded-full blur-2xl"></div>
+            <div className="w-20 h-20 bg-indigo-500 rounded-full blur-2xl"></div>
           </div>
           <h3 className="text-slate-400 font-medium text-sm">Active Loans</h3>
           <p className="text-4xl font-bold text-white mt-2">{stats.activeLoans}</p>
           <div className="mt-4 flex items-center text-sm text-indigo-400">
-             <ArrowUpRight size={16} className="mr-1" /> Built for growth
+            <ArrowUpRight size={16} className="mr-1" /> Built for growth
           </div>
         </Card>
 
         <Card hoverEffect className="relative overflow-hidden group">
-           <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-             <div className="w-20 h-20 bg-amber-500 rounded-full blur-2xl"></div>
+          <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+            <div className="w-20 h-20 bg-amber-500 rounded-full blur-2xl"></div>
           </div>
           <h3 className="text-slate-400 font-medium text-sm">Pending Requests</h3>
           <p className="text-4xl font-bold text-white mt-2">{stats.pendingRequests}</p>
           <div className="mt-4 flex items-center text-sm text-amber-400">
-             Needs attention
+            Needs attention
           </div>
         </Card>
 
         <Card hoverEffect className="relative overflow-hidden group">
-           <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-             <div className="w-20 h-20 bg-cyan-500 rounded-full blur-2xl"></div>
+          <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+            <div className="w-20 h-20 bg-cyan-500 rounded-full blur-2xl"></div>
           </div>
           <h3 className="text-slate-400 font-medium text-sm">Notices</h3>
           <p className="text-4xl font-bold text-white mt-2">{stats.notices}</p>
           <div className="mt-4 flex items-center text-sm text-cyan-400">
-             Broadcasts active
+            Broadcasts active
           </div>
         </Card>
       </div>
@@ -125,7 +123,8 @@ export function AdminDashboard() {
         {/* Pie Chart */}
         <Card>
           <h3 className="text-lg font-semibold text-white mb-6">Loan Status Distribution</h3>
-          <div className="h-[300px] w-full">
+          {/* Explicit height and min-height container to prevent Recharts width(-1) error */}
+          <div style={{ width: '100%', height: 300, minHeight: 300 }}>
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
@@ -137,15 +136,15 @@ export function AdminDashboard() {
                   outerRadius={100}
                   innerRadius={60}
                   stroke="none"
-                  label={({ name, percent }) => `${(percent * 100).toFixed(0)}%`}
+                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                 >
                   {loanData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip 
-                    contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #ffffff10', borderRadius: '8px' }}
-                    itemStyle={{ color: '#e2e8f0' }}
+                <Tooltip
+                  contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #ffffff10', borderRadius: '8px' }}
+                  itemStyle={{ color: '#e2e8f0' }}
                 />
                 <Legend />
               </PieChart>
@@ -163,25 +162,23 @@ export function AdminDashboard() {
               {recentActivity.map((act, idx) => (
                 <div key={idx} className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors">
                   <div className="flex items-center gap-4">
-                     <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-white ${
-                        act.status === 'Approved' ? 'bg-emerald-500/20 text-emerald-400' :
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-white ${act.status === 'Approved' ? 'bg-emerald-500/20 text-emerald-400' :
                         act.status === 'Rejected' ? 'bg-rose-500/20 text-rose-400' :
-                        'bg-slate-700 text-slate-300'
-                     }`}>
-                        {act.user.charAt(0)}
-                     </div>
-                     <div>
-                        <p className="font-medium text-slate-200">{act.user}</p>
-                        <p className="text-xs text-slate-500">{new Date(act.date).toLocaleDateString()}</p>
-                     </div>
+                          'bg-slate-700 text-slate-300'
+                      }`}>
+                      {act.user.charAt(0)}
+                    </div>
+                    <div>
+                      <p className="font-medium text-slate-200">{act.user}</p>
+                      <p className="text-xs text-slate-500">{new Date(act.date).toLocaleDateString()}</p>
+                    </div>
                   </div>
                   <div className="text-right">
                     <p className="font-bold text-white">₹{act.amount.toLocaleString()}</p>
-                    <p className={`text-xs capitalize ${
-                        act.status === 'Approved' ? 'text-emerald-400' :
+                    <p className={`text-xs capitalize ${act.status === 'Approved' ? 'text-emerald-400' :
                         act.status === 'Rejected' ? 'text-rose-400' :
-                        'text-slate-400'
-                    }`}>{act.status}</p>
+                          'text-slate-400'
+                      }`}>{act.status}</p>
                   </div>
                 </div>
               ))}

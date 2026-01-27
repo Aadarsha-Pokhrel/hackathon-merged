@@ -32,7 +32,7 @@ export function Layout({ children, role = "member", onLogout, menuItems = [] }) 
               <span className="font-bold text-white text-xl">{role === 'admin' ? 'A' : 'M'}</span>
             </div>
             <div>
-              <h1 className="font-bold text-lg text-white leading-none tracking-tight">FinCorp</h1>
+              <h1 className="font-bold text-lg text-white leading-none tracking-tight">Samuha Connect</h1>
               <p className="text-xs text-slate-400 mt-1 capitalize">{role} Portal</p>
             </div>
           </div>
