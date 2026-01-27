@@ -127,6 +127,8 @@ export function LoanRequestPage() {
 
   if (loading) return <div className="text-center py-20 text-slate-500">Loading dashboard...</div>;
 
+  console.log(history)
+
   return (
     <div className="space-y-10">
       <h1 className="text-2xl font-bold text-white flex items-center gap-2">
@@ -248,9 +250,10 @@ export function LoanRequestPage() {
                                 <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-semibold ${
                                     h.status === 'Approved' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
                                     h.status === 'Rejected' ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20' :
+                                    h.status === 'PAID' ? "bg-yellow-500/10 text-yellow-400 border border-yellow-500/20" :
                                     'bg-slate-500/10 text-slate-400'
                                 }`}>
-                                    {h.status === 'Approved' ? <CheckCircle size={10} /> : h.status === 'Rejected' ? <XCircle size={10} /> : null}
+                                    {h.status === 'Approved' ? <CheckCircle size={10} /> : h.status === 'Rejected' ? <XCircle size={10} /> : h.status === 'PAID' ? <XCircle size={10} /> :null}
                                     {h.status}
                                 </span>
                             </td>
