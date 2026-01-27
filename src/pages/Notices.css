@@ -1,218 +1,182 @@
-/* =========================
-   RESET
-========================= */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-/* =========================
-   PAGE LAYOUT
-========================= */
+/* ================= PAGE ================= */
 .notices-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #f0fdf4, #e0e7ff);
-  padding: 2rem 1rem;
+  background: linear-gradient(180deg, #ecfdf5, #f0fdf4);
+  padding: 40px 20px;
+  font-family: "Inter", "Segoe UI", sans-serif;
 }
 
-/* Container */
 .notices-container {
-  max-width: 960px;
-  margin: auto;
+  max-width: 820px;
+  margin: 0 auto;
 }
 
-/* =========================
-   HEADER
-========================= */
+/* ================= HEADER ================= */
 .notices-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2.5rem;
-  flex-wrap: wrap;
-  gap: 1rem;
+  margin-bottom: 35px;
 }
 
 .notices-header h1 {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #166534;
-  text-align: center;
-  flex: 1;
+  font-size: 2.4rem;
+  font-weight: 800;
+  color: #064e3b;
+  letter-spacing: -0.5px;
 }
 
 .add-notice-btn {
-  padding: 10px 20px;
-  background: linear-gradient(135deg, #16a34a, #22c55e);
-  color: white;
+  padding: 12px 26px;
+  border-radius: 999px;
   border: none;
-  border-radius: 12px;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: white;
+  font-weight: 700;
   cursor: pointer;
-  font-weight: 600;
-  transition: all 0.3s ease;
+  box-shadow: 0 10px 25px rgba(34,197,94,0.45);
+  transition: all 0.2s ease;
 }
 
 .add-notice-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(22,163,74,0.4);
+  box-shadow: 0 16px 35px rgba(34,197,94,0.6);
 }
 
-/* =========================
-   NOTICES LIST
-========================= */
+/* ================= LIST ================= */
 .notices-list {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 28px;
 }
 
-/* =========================
-   NOTICE CARD
-========================= */
+/* ================= CARD ================= */
 .notice-card {
-  background: rgba(255,255,255,0.95);
-  border-radius: 20px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-  transition: all 0.3s ease, transform 0.35s ease;
+  background: white;
+  border-radius: 28px;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.12);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
 .notice-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 28px rgba(22,163,74,0.25);
+  transform: translateY(-6px);
+  box-shadow: 0 35px 80px rgba(0,0,0,0.18);
 }
 
-/* Inner padding */
 .notice-inner {
-  padding: 2rem;
+  padding: 28px;
 }
 
-/* Card header */
+/* ================= TOP ================= */
 .notice-top {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 1.5rem;
-  flex-wrap: wrap;
-  gap: 1rem;
+  align-items: center;
+  margin-bottom: 18px;
 }
 
 .notice-user {
   display: flex;
-  gap: 16px;
   align-items: center;
+  gap: 14px;
 }
 
-/* Avatar */
 .avatar {
   width: 52px;
   height: 52px;
-  background: #16a34a;
-  color: white;
   border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-weight: bold;
-  font-size: 1.1rem;
+  background: linear-gradient(135deg, #22c55e, #15803d);
+  display: grid;
+  place-items: center;
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: white;
+  box-shadow: 0 8px 22px rgba(34,197,94,0.45);
 }
 
-/* User info */
 .posted-by {
-  font-weight: 600;
-  color: #14532d;
-  font-size: 0.95rem;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: #064e3b;
+  margin: 0;
 }
 
 .time {
-  font-size: 13px;
-  color: #16a34a;
+  font-size: 0.85rem;
+  color: #6b7280;
 }
 
-/* Admin actions */
+/* ================= ADMIN ACTIONS ================= */
+.admin-actions {
+  display: flex;
+  gap: 10px;
+}
+
 .admin-actions button {
-  background: none;
+  padding: 6px 14px;
+  font-size: 0.8rem;
+  border-radius: 999px;
   border: none;
   cursor: pointer;
-  margin-left: 10px;
-  font-size: 14px;
+  background: #f1f5f9;
+  color: #334155;
   font-weight: 600;
-  transition: all 0.2s ease;
-}
-
-.admin-actions button:hover {
-  opacity: 0.75;
 }
 
 .admin-actions .danger {
-  color: #dc2626;
+  background: #fee2e2;
+  color: #991b1b;
 }
 
-/* Notice title & content */
+/* ================= CONTENT ================= */
 .notice-title {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #166534;
-  margin-bottom: 0.75rem;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #022c22;
+  margin: 12px 0 8px;
 }
 
 .notice-content {
-  line-height: 1.8;
-  color: #14532d;
-  font-size: 0.95rem;
+  font-size: 1.15rem;
+  line-height: 1.7;
+  color: #064e3b;
+  margin: 14px 0 22px;
+  letter-spacing: -0.2px;
 }
 
-/* Tags */
+/* ================= TAGS ================= */
 .notice-tags {
   display: flex;
-  gap: 12px;
-  margin-top: 1.5rem;
+  gap: 10px;
   flex-wrap: wrap;
 }
 
 .tag {
-  padding: 6px 16px;
-  font-size: 0.75rem;
+  padding: 6px 14px;
+  font-size: 0.7rem;
+  font-weight: 800;
   border-radius: 999px;
-  font-weight: 600;
-  transition: all 0.2s ease;
+  letter-spacing: 0.6px;
+  background: #dcfce7;
+  color: #14532d;
 }
 
 .tag.high {
   background: #fee2e2;
-  color: #b91c1c;
+  color: #991b1b;
 }
 
 .tag.medium {
-  background: #fef9c3;
+  background: #fef3c7;
   color: #92400e;
 }
 
 .tag.low {
   background: #dcfce7;
-  color: #166534;
+  color: #14532d;
 }
 
 .tag.category {
-  background: #dbeafe;
-  color: #1e40af;
-}
-
-/* =========================
-   RESPONSIVE
-========================= */
-@media (max-width: 768px) {
-  .notices-header {
-    flex-direction: column;
-    text-align: center;
-  }
-
-  .notice-top {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .notice-inner {
-    padding: 1.5rem;
-  }
+  background: #e0f2fe;
+  color: #075985;
 }

@@ -11,7 +11,7 @@ import { MembersPage } from "./Admin/Members/MembersPage";
 
 import { MemberPage } from "./Member/MemberPage";
 import Home from "./pages/Home";
-import ActiveLoans from "./pages/ActiveLoans";
+import Loans from "./pages/Loans";
 import Notices from "./pages/Notices";
 import Contacts from "./pages/Contacts";
 
@@ -126,7 +126,7 @@ function App() {
     <Routes>
       <Route path="/member" element={<MemberPage onLogout={handleLogout} />}>
         <Route index element={<Home user={user} />} />
-        <Route path="activeloans" element={<ActiveLoans user={user} />} />
+        <Route path="loans" element={<Loans user={user} />} />
         <Route path="notices" element={<Notices user={user} />} />
         <Route path="contacts" element={<Contacts user={user} />} />
         <Route path = "createrequest" element = {<CreateLoanRequest user={user} />}/>

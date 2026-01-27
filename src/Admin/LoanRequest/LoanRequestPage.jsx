@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import "./LoanRequestPage.css";
 
@@ -12,43 +12,43 @@ export function LoanRequestPage() {
   // -----------------------------
   // Fetch ALL data from backend
   // -----------------------------
-  const fetchData = useCallback(async () => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
-
-    const authHeader = { headers: { Authorization: `Bearer ${token}` } };
-
-    try {
-      const [reqRes, histRes, loanRes] = await Promise.all([
-        axios.get(`${API}/admin/loan-requests`, authHeader),
-        axios.get(`${API}/admin/loan-history`, authHeader),
-        axios.get(`${API}/admin/loans/active`, authHeader),
-      ]);
-
-      setRequests(reqRes.data || []);
-      setHistory(histRes.data || []);
-
-      const enrichedLoans = (loanRes.data || []).map((l) => {
-        const fromHistory = histRes.data.find(
-          (h) => h.loanReqId === l.id || h.loanId === l.id
-        );
-        return {
-          ...l,
-          users: fromHistory?.users ?? l.users,
-          principal: fromHistory?.Amount ?? l.principal,
-          startDate: l.startDate ?? fromHistory?.createdAt,
-        };
-      });
-
-      setLoans(enrichedLoans);
-    } catch (err) {
-      console.error("Failed to load loans:", err);
-    }
-  }, []);
-
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    const fetchData = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      const authHeader = { headers: { Authorization: `Bearer ${token}` } };
+
+      try {
+        const [reqRes, histRes, loanRes] = await Promise.all([
+          axios.get(`${API}/admin/loan-requests`, authHeader),
+          axios.get(`${API}/admin/loan-history`, authHeader),
+          axios.get(`${API}/admin/loans/active`, authHeader),
+        ]);
+
+        setRequests(reqRes.data || []);
+        setHistory(histRes.data || []);
+
+        const enrichedLoans = (loanRes.data || []).map((l) => {
+          const fromHistory = histRes.data.find(
+            (h) => h.loanReqId === l.id || h.loanId === l.id
+          );
+          return {
+            ...l,
+            users: fromHistory?.users ?? l.users,
+            principal: fromHistory?.Amount ?? l.principal,
+            startDate: l.startDate ?? fromHistory?.createdAt,
+          };
+        });
+
+        setLoans(enrichedLoans);
+      } catch (err) {
+        console.error("Failed to load loans:", err);
+      }
+    };
+
+    fetchData(); // call once on mount
+  }, []);
 
   // -----------------------------
   // Approve / Reject Loan
@@ -56,50 +56,25 @@ export function LoanRequestPage() {
   const handleAction = async (id, action) => {
     const token = localStorage.getItem("token");
     if (!token) return;
+
     const authHeader = { headers: { Authorization: `Bearer ${token}` } };
 
     try {
-      const res = await axios.post(
-        `${API}/admin/${action}/${id}`,
-        {},
-        authHeader
-      );
+      const res = await axios.post(`${API}/admin/${action}/${id}`, {}, authHeader);
 
       const approvedRequest = requests.find((r) => r.loanReqId === id);
       setRequests((prev) => prev.filter((r) => r.loanReqId !== id));
 
-      if (action === "approve") {
-        setHistory((prev) => [
-          ...prev,
-          {
-            loanReqId: id,
-            users: approvedRequest?.users ?? res.data.users,
-            Amount:
-              res.data.Amount ??
-              approvedRequest?.Amount ??
-              res.data.principal,
-            status: "Approved",
-            createdAt: res.data.startDate ?? new Date().toISOString(),
-          },
-        ]);
-      }
+      const newHistoryItem = {
+        loanReqId: id,
+        users: approvedRequest?.users ?? res.data.users,
+        Amount:
+          res.data.Amount ?? approvedRequest?.Amount ?? res.data.principal,
+        status: action === "approve" ? "Approved" : "Rejected",
+        createdAt: res.data.startDate ?? res.data.createdAt ?? new Date().toISOString(),
+      };
 
-      if (action === "reject") {
-        setHistory((prev) => [
-          ...prev,
-          {
-            loanReqId: id,
-            users: approvedRequest?.users ?? res.data.users,
-            Amount: res.data.Amount ?? approvedRequest?.Amount,
-            status: "Rejected",
-            createdAt: res.data.createdAt ?? new Date().toISOString(),
-          },
-        ]);
-      }
-
-      // 🔥 FIX: sync UI with backend
-      await fetchData();
-
+      setHistory((prev) => [...prev, newHistoryItem]);
     } catch (err) {
       console.error(`Failed to ${action} loan`, err);
     }
@@ -111,18 +86,38 @@ export function LoanRequestPage() {
   const markAsPaid = async (loanId, userId) => {
     const token = localStorage.getItem("token");
     if (!token) return;
+
     const authHeader = { headers: { Authorization: `Bearer ${token}` } };
 
     try {
-      await axios.post(
-        `${API}/admin/loans/${loanId}/${userId}/mark-paid`,
-        {},
-        authHeader
-      );
+      await axios.post(`${API}/admin/loans/${loanId}/${userId}/mark-paid`, {}, authHeader);
+      // Refresh data
+      const fetchData = async () => {
+        const [reqRes, histRes, loanRes] = await Promise.all([
+          axios.get(`${API}/admin/loan-requests`, authHeader),
+          axios.get(`${API}/admin/loan-history`, authHeader),
+          axios.get(`${API}/admin/loans/active`, authHeader),
+        ]);
 
-      // 🔥 FIX: sync UI with backend
-      await fetchData();
+        setRequests(reqRes.data || []);
+        setHistory(histRes.data || []);
 
+        const enrichedLoans = (loanRes.data || []).map((l) => {
+          const fromHistory = histRes.data.find(
+            (h) => h.loanReqId === l.id || h.loanId === l.id
+          );
+          return {
+            ...l,
+            users: fromHistory?.users ?? l.users,
+            principal: fromHistory?.Amount ?? l.principal,
+            startDate: l.startDate ?? fromHistory?.createdAt,
+          };
+        });
+
+        setLoans(enrichedLoans);
+      };
+
+      fetchData();
     } catch (err) {
       console.error("Failed to mark loan as paid", err);
     }
@@ -156,20 +151,10 @@ export function LoanRequestPage() {
                 <p className="loan-amount">₹ {r.Amount ?? "N/A"}</p>
                 <p className="loan-time">{timeAgo(r.createdAt)}</p>
                 <div className="loan-actions">
-                  <button
-                    className="accept"
-                    onClick={() =>
-                      handleAction(r.loanReqId, "approve")
-                    }
-                  >
+                  <button className="accept" onClick={() => handleAction(r.loanReqId, "approve")}>
                     Accept
                   </button>
-                  <button
-                    className="reject"
-                    onClick={() =>
-                      handleAction(r.loanReqId, "reject")
-                    }
-                  >
+                  <button className="reject" onClick={() => handleAction(r.loanReqId, "reject")}>
                     Reject
                   </button>
                 </div>
@@ -189,12 +174,7 @@ export function LoanRequestPage() {
                 <p className="loan-name">{l.users?.name || "Unknown"}</p>
                 <p className="loan-amount">₹ {l.principal ?? "N/A"}</p>
                 <p className="loan-time">{timeAgo(l.startDate)}</p>
-                <button
-                  className="paid-btn"
-                  onClick={() =>
-                    markAsPaid(l.id, l.users?.userID)
-                  }
-                >
+                <button className="paid-btn" onClick={() => markAsPaid(l.id, l.users?.userID)}>
                   Mark as Paid
                 </button>
               </div>
@@ -207,10 +187,7 @@ export function LoanRequestPage() {
         <h2>Loan History</h2>
         {history.length === 0 && <p>No loan history</p>}
         {history.map((h, index) => (
-          <div
-            key={`history-${index}`}
-            className={`loan-card ${h.status?.toLowerCase()}`}
-          >
+          <div key={`history-${index}`} className={`loan-card ${h.status?.toLowerCase()}`}>
             <p className="loan-name">{h.users?.name || "Unknown"}</p>
             <p className="loan-amount">₹ {h.Amount ?? "N/A"}</p>
             <p className="loan-status">Status: {h.status}</p>
