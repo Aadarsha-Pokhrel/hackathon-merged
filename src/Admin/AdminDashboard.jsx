@@ -8,7 +8,8 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import axios from "axios";
-import "./AdminDashboard.css";
+import { Card } from "../components/ui/Card";
+import { ArrowUpRight } from "lucide-react";
 
 const API = "http://localhost:8080";
 
@@ -73,68 +74,120 @@ export function AdminDashboard() {
     };
 
     fetchDashboardData();
-  }, []); // run once on mount
+  }, []); 
 
-  const COLORS = ["#4CAF50", "#FF5722", "#2196F3"];
+  const COLORS = ["#10b981", "#f43f5e", "#6366f1"]; // emerald-500, rose-500, indigo-500
 
   return (
-    <div className="admin-dashboard">
-      <h1>Admin Dashboard</h1>
-      <p className="welcome">Welcome back, Admin 👋</p>
+    <div className="space-y-8">
+      <div>
+        <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">Admin Dashboard</h1>
+        <p className="text-slate-400 mt-1">Welcome back, Admin 👋</p>
+      </div>
 
       {/* Summary Cards */}
-      <div className="cards">
-        <div className="card active-loans">
-          <h3>Active Loans</h3>
-          <p>{stats.activeLoans}</p>
-        </div>
-        <div className="card pending-requests">
-          <h3>Pending Requests</h3>
-          <p>{stats.pendingRequests}</p>
-        </div>
-        <div className="card notices">
-          <h3>Notices</h3>
-          <p>{stats.notices}</p>
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card hoverEffect className="relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+             <div className="w-20 h-20 bg-indigo-500 rounded-full blur-2xl"></div>
+          </div>
+          <h3 className="text-slate-400 font-medium text-sm">Active Loans</h3>
+          <p className="text-4xl font-bold text-white mt-2">{stats.activeLoans}</p>
+          <div className="mt-4 flex items-center text-sm text-indigo-400">
+             <ArrowUpRight size={16} className="mr-1" /> Built for growth
+          </div>
+        </Card>
+
+        <Card hoverEffect className="relative overflow-hidden group">
+           <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+             <div className="w-20 h-20 bg-amber-500 rounded-full blur-2xl"></div>
+          </div>
+          <h3 className="text-slate-400 font-medium text-sm">Pending Requests</h3>
+          <p className="text-4xl font-bold text-white mt-2">{stats.pendingRequests}</p>
+          <div className="mt-4 flex items-center text-sm text-amber-400">
+             Needs attention
+          </div>
+        </Card>
+
+        <Card hoverEffect className="relative overflow-hidden group">
+           <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+             <div className="w-20 h-20 bg-cyan-500 rounded-full blur-2xl"></div>
+          </div>
+          <h3 className="text-slate-400 font-medium text-sm">Notices</h3>
+          <p className="text-4xl font-bold text-white mt-2">{stats.notices}</p>
+          <div className="mt-4 flex items-center text-sm text-cyan-400">
+             Broadcasts active
+          </div>
+        </Card>
       </div>
 
-      {/* Pie Chart */}
-      <div className="charts">
-        <h3>Loan Status</h3>
-        <ResponsiveContainer width="100%" height={250}>
-          <PieChart>
-            <Pie
-              data={loanData}
-              dataKey="value"
-              nameKey="name"
-              outerRadius={80}
-              label
-            >
-              {loanData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Pie Chart */}
+        <Card>
+          <h3 className="text-lg font-semibold text-white mb-6">Loan Status Distribution</h3>
+          <div className="h-[300px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={loanData}
+                  dataKey="value"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={100}
+                  innerRadius={60}
+                  stroke="none"
+                  label={({ name, percent }) => `${(percent * 100).toFixed(0)}%`}
+                >
+                  {loanData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip 
+                    contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #ffffff10', borderRadius: '8px' }}
+                    itemStyle={{ color: '#e2e8f0' }}
+                />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </Card>
+
+        {/* Recent Activity */}
+        <Card>
+          <h3 className="text-lg font-semibold text-white mb-6">Recent Activity</h3>
+          {recentActivity.length === 0 ? (
+            <div className="text-center py-10 text-slate-500">No recent activity found.</div>
+          ) : (
+            <div className="space-y-4">
+              {recentActivity.map((act, idx) => (
+                <div key={idx} className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors">
+                  <div className="flex items-center gap-4">
+                     <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-white ${
+                        act.status === 'Approved' ? 'bg-emerald-500/20 text-emerald-400' :
+                        act.status === 'Rejected' ? 'bg-rose-500/20 text-rose-400' :
+                        'bg-slate-700 text-slate-300'
+                     }`}>
+                        {act.user.charAt(0)}
+                     </div>
+                     <div>
+                        <p className="font-medium text-slate-200">{act.user}</p>
+                        <p className="text-xs text-slate-500">{new Date(act.date).toLocaleDateString()}</p>
+                     </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-bold text-white">₹{act.amount.toLocaleString()}</p>
+                    <p className={`text-xs capitalize ${
+                        act.status === 'Approved' ? 'text-emerald-400' :
+                        act.status === 'Rejected' ? 'text-rose-400' :
+                        'text-slate-400'
+                    }`}>{act.status}</p>
+                  </div>
+                </div>
               ))}
-            </Pie>
-            <Tooltip />
-            <Legend />
-          </PieChart>
-        </ResponsiveContainer>
-      </div>
-
-      {/* Recent Activity */}
-      <div className="recent-activity">
-        <h3>Recent Activity</h3>
-        {recentActivity.length === 0 ? (
-          <p>No recent activity</p>
-        ) : (
-          <ul>
-            {recentActivity.map((act, idx) => (
-              <li key={idx}>
-                {act.user} - ₹{act.amount} ({act.status}) -{" "}
-                {new Date(act.date).toLocaleDateString()}
-              </li>
-            ))}
-          </ul>
-        )}
+            </div>
+          )}
+        </Card>
       </div>
     </div>
   );
