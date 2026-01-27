@@ -15,46 +15,50 @@ export function LoanRequestPage() {
   // -----------------------------
   // Fetch ALL data from backend
   // -----------------------------
+  // -----------------------------
+  // Fetch ALL data from backend
+  // -----------------------------
+  const fetchData = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    const authHeader = { headers: { Authorization: `Bearer ${token}` } };
+    // Only set loading on initial fetch to avoid flickering on updates
+    if (requests.length === 0) setLoading(true);
+
+    try {
+      const [reqRes, histRes, loanRes] = await Promise.all([
+        axios.get(`${API}/admin/loan-requests`, authHeader),
+        axios.get(`${API}/admin/loan-history`, authHeader),
+        axios.get(`${API}/admin/loans/active`, authHeader),
+      ]);
+
+      setRequests((reqRes.data || []).sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt)));
+      setHistory((histRes.data || []).sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt)));
+
+      const enrichedLoans = (loanRes.data || [])
+          .map((l) => {
+            const fromHistory = histRes.data.find(
+              (h) => h.loanReqId === l.id || h.loanId === l.id
+            );
+            return {
+              ...l,
+              users: fromHistory?.users ?? l.users,
+              principal: fromHistory?.Amount ?? l.principal,
+              startDate: l.startDate ?? fromHistory?.createdAt,
+            };
+          })
+          .sort((a,b) => new Date(b.startDate) - new Date(a.startDate)); // Latest active loans first
+
+      setLoans(enrichedLoans);
+    } catch (err) {
+      console.error("Failed to load loans:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      const token = localStorage.getItem("token");
-      if (!token) return;
-
-      const authHeader = { headers: { Authorization: `Bearer ${token}` } };
-      setLoading(true);
-
-      try {
-        const [reqRes, histRes, loanRes] = await Promise.all([
-          axios.get(`${API}/admin/loan-requests`, authHeader),
-          axios.get(`${API}/admin/loan-history`, authHeader),
-          axios.get(`${API}/admin/loans/active`, authHeader),
-        ]);
-
-        setRequests((reqRes.data || []).sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt)));
-        setHistory((histRes.data || []).sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt)));
-
-        const enrichedLoans = (loanRes.data || [])
-            .map((l) => {
-              const fromHistory = histRes.data.find(
-                (h) => h.loanReqId === l.id || h.loanId === l.id
-              );
-              return {
-                ...l,
-                users: fromHistory?.users ?? l.users,
-                principal: fromHistory?.Amount ?? l.principal,
-                startDate: l.startDate ?? fromHistory?.createdAt,
-              };
-            })
-            .sort((a,b) => new Date(b.startDate) - new Date(a.startDate)); // Latest active loans first
-
-        setLoans(enrichedLoans);
-      } catch (err) {
-        console.error("Failed to load loans:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchData(); // call once on mount
   }, []);
 
@@ -68,21 +72,12 @@ export function LoanRequestPage() {
     const authHeader = { headers: { Authorization: `Bearer ${token}` } };
 
     try {
-      const res = await axios.post(`${API}/admin/${action}/${id}`, {}, authHeader);
+      await axios.post(`${API}/admin/${action}/${id}`, {}, authHeader);
+      
+      // Re-fetch data to ensure we have the correct Loan IDs from the backend
+      // This prevents "Loan not found" errors when trying to Mark as Paid immediately
+      await fetchData();
 
-      const approvedRequest = requests.find((r) => r.loanReqId === id);
-      setRequests((prev) => prev.filter((r) => r.loanReqId !== id));
-
-      const newHistoryItem = {
-        loanReqId: id,
-        users: approvedRequest?.users ?? res.data.users,
-        Amount:
-          res.data.Amount ?? approvedRequest?.Amount ?? res.data.principal,
-        status: action === "approve" ? "Approved" : "Rejected",
-        createdAt: res.data.startDate ?? res.data.createdAt ?? new Date().toISOString(),
-      };
-
-      setHistory((prev) => [...prev, newHistoryItem]);
     } catch (err) {
       console.error(`Failed to ${action} loan`, err);
     }
@@ -186,32 +181,41 @@ export function LoanRequestPage() {
         <h2 className="text-lg font-semibold text-slate-200 flex items-center gap-2">
             <Activity size={16} className="text-emerald-400" /> Active Loans
         </h2>
-        {loans.filter(l => (l.status === "ACTIVE" || l.status === "Approved") && l.status !== "Rejected").length === 0 ? (
+        {loans.filter(l => {
+             const status = l.status?.toLowerCase() || "";
+             return (status === "active" || status === "approved") && status !== "rejected";
+        }).length === 0 ? (
             <div className="text-center py-8 bg-white/5 rounded-xl border border-dashed border-white/10 text-slate-500 text-sm">
                 No active loans
             </div>
         ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                {loans.map(
-                (l, index) =>
-                    (l.status === "ACTIVE" || l.status === "Approved") && l.status !== "Rejected" && (
-                    <Card key={`loan-${index}`} className="border-emerald-500/20 shadow-emerald-500/5 hover:bg-emerald-500/5 transition-colors">
-                        <div className="flex justify-between items-start mb-4">
-                            <div>
-                                <p className="font-bold text-white text-lg">{l.users?.name || "Unknown"}</p>
-                                <p className="text-xs text-slate-400">Since {timeAgo(l.startDate)}</p>
+                {loans.map((l, index) => {
+                    // Strict check: Status must be ACTIVE or Approved, AND explicitly NOT Rejected (case insensitive)
+                    const status = l.status?.toLowerCase() || "";
+                    const isRejected = status === "rejected";
+                    const isApproved = status === "active" || status === "approved";
+
+                    if (!isApproved || isRejected) return null;
+
+                    return (
+                        <Card key={`loan-${index}`} className="border-emerald-500/20 shadow-emerald-500/5 hover:bg-emerald-500/5 transition-colors">
+                            <div className="flex justify-between items-start mb-4">
+                                <div>
+                                    <p className="font-bold text-white text-lg">{l.users?.name || "Unknown"}</p>
+                                    <p className="text-xs text-slate-400">Since {timeAgo(l.startDate)}</p>
+                                </div>
+                                <div className="text-right">
+                                    <p className="text-2xl font-bold text-emerald-400">₹ {l.principal?.toLocaleString() ?? "N/A"}</p>
+                                    <p className="text-xs text-slate-500 uppercase tracking-wider">Principal</p>
+                                </div>
                             </div>
-                            <div className="text-right">
-                                <p className="text-2xl font-bold text-emerald-400">₹ {l.principal?.toLocaleString() ?? "N/A"}</p>
-                                <p className="text-xs text-slate-500 uppercase tracking-wider">Principal</p>
-                            </div>
-                        </div>
-                        <Button className="w-full mt-2 bg-emerald-600 hover:bg-emerald-500 shadow-lg shadow-emerald-500/20 text-white font-semibold py-3" onClick={() => markAsPaid(l.id, l.users?.userID)}>
-                            <CheckCircle size={18} className="mr-2" /> Mark as Paid
-                        </Button>
-                    </Card>
-                    )
-                )}
+                            <Button className="w-full mt-2 bg-emerald-600 hover:bg-emerald-500 shadow-lg shadow-emerald-500/20 text-white font-semibold py-3" onClick={() => markAsPaid(l.id, l.users?.userID)}>
+                                <CheckCircle size={18} className="mr-2" /> Mark as Paid
+                            </Button>
+                        </Card>
+                    );
+                })}
             </div>
         )}
       </section>

@@ -43,7 +43,7 @@ export function Layout({ children, role = "member", onLogout, menuItems = [] }) 
 
         <nav className="flex-1 px-4 space-y-2 mt-6">
           {menuItems.map((item) => {
-            const isActive = location.pathname === item.path || (item.path !== role && location.pathname.startsWith(item.path));
+            const isActive = location.pathname === item.path || (location.pathname.startsWith(`${item.path}/`) && item.path !== `/${role}`);
             return (
               <Link
                 key={item.path}

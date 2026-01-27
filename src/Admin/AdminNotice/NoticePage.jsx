@@ -24,7 +24,7 @@ export function NoticePage() {
         const data = response.data.map((notice) => ({
           ...notice,
           createdAt: notice.createdAt ? new Date(notice.createdAt) : new Date(),
-        })).sort((a, b) => b.createdAt - a.createdAt);
+        })).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         
         setNotices(data);
       } catch (err) {
