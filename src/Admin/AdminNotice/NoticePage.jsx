@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { Card } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
-import { Megaphone, Plus, Trash2, Sparkles, Clock } from 'lucide-react';
+import { Megaphone, Plus, Trash2, Sparkles, Clock } from "lucide-react";
 
 export function NoticePage() {
   const [notices, setNotices] = useState([]);
@@ -12,16 +12,16 @@ export function NoticePage() {
 
   const token = localStorage.getItem("token");
 
-  // Fetch all notices, newest first (stack)
+  // 🔹 Fetch notices
   const fetchNotices = async () => {
     try {
+      setError("");
       const response = await axios.get("http://localhost:8080/notice", {
         headers: { Authorization: `Bearer ${token}` },
       });
-     
-      const  data = response.data;
-      console.log(data)
-      // Sort newest first
+
+      const data = response.data;
+
       const sorted = data.sort((a, b) => {
         const diff = new Date(b.createdAt) - new Date(a.createdAt);
         return diff !== 0 ? diff : b.notice_id - a.notice_id;
@@ -38,29 +38,30 @@ export function NoticePage() {
     fetchNotices();
   }, []);
 
-  // Add new notice
+  // 🔹 Add notice (FIXED)
   const addNotice = async () => {
     if (!text.trim()) return;
-    setLoading(true);
 
-    const newNotice = {
+    setLoading(true);
+    setError("");
+
+    const payload = {
       type: "general",
       purpose: text,
       noticeCreator: "Admin",
     };
 
     try {
-      const response = await axios.post(
+      await axios.post(
         "http://localhost:8080/create-notice",
-        newNotice,
+        payload,
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      const createdNotice = response.data;
-
-      // Prepend to top of stack
-      setNotices((prev) => [createdNotice, ...prev]);
       setText("");
+
+      // ✅ RE-FETCH FROM BACKEND (FIX)
+      await fetchNotices();
     } catch (err) {
       console.error(err);
       setError("Failed to post notice");
@@ -69,10 +70,11 @@ export function NoticePage() {
     }
   };
 
-  // Format createdAt to readable date & time
+  // 🔹 Format datetime
   const formatDateTime = (date) => {
+    if (!date) return "Just now";
     const d = new Date(date);
-    const options = {
+    return d.toLocaleString("en-US", {
       weekday: "short",
       year: "numeric",
       month: "short",
@@ -81,11 +83,10 @@ export function NoticePage() {
       minute: "2-digit",
       second: "2-digit",
       hour12: false,
-    };
-    return d.toLocaleString("en-US", options);
+    });
   };
 
-  // Highlight currency in notice text
+  // 🔹 Highlight currency
   const formatNoticeText = (text) => {
     if (!text) return "";
     const parts = text.split(/(₹\s*[\d,]+|NPR\s*[\d,]+|Rs\.?\s*[\d,]+)/gi);
@@ -103,104 +104,77 @@ export function NoticePage() {
     );
   };
 
-
   return (
     <div className="space-y-8 pb-10">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-white flex items-center gap-3">
-            <Megaphone className="text-indigo-400" /> Admin Notices
-          </h1>
-          <p className="text-slate-400 mt-1">Broadcast updates to all members</p>
-        </div>
+      <div>
+        <h1 className="text-3xl font-bold text-white flex items-center gap-3">
+          <Megaphone className="text-indigo-400" /> Admin Notices
+        </h1>
+        <p className="text-slate-400 mt-1">Broadcast updates to all members</p>
       </div>
 
-      {/* Error */}
       {error && (
         <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-300 text-sm">
           {error}
         </div>
       )}
 
-      {/* Create new notice */}
-      <Card className="p-1 relative overflow-hidden bg-gradient-to-br from-indigo-500/10 to-purple-500/10 border-indigo-500/20">
-        <div className="bg-slate-950/80 backdrop-blur-sm p-6 rounded-xl">
-          <label className="block text-sm font-medium text-indigo-300 mb-3 flex items-center gap-2">
+      {/* Create Notice */}
+      <Card className="p-1 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 border-indigo-500/20">
+        <div className="bg-slate-950/80 p-6 rounded-xl">
+          <label className="text-sm font-medium text-indigo-300 mb-3 flex items-center gap-2">
             <Sparkles size={14} /> Create New Announcement
           </label>
-          <div className="relative">
-            <textarea
-              className="w-full bg-slate-900 border border-white/10 rounded-xl p-4 text-white text-sm focus:outline-none focus:border-indigo-500 transition-all resize-none min-h-[120px] placeholder:text-slate-600"
-              placeholder="Write something exciting for the members... (e.g. Due of ₹ 5000)"
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-            />
-            <div className="absolute right-3 bottom-3">
-              <Button
-                onClick={addNotice}
-                isLoading={loading}
-                disabled={!text.trim()}
-                className="bg-indigo-600 hover:bg-indigo-500"
-              >
-                <Plus size={16} className="mr-2" /> Post Now
-              </Button>
-            </div>
+
+          <textarea
+            className="w-full bg-slate-900 border border-white/10 rounded-xl p-4 text-white text-sm resize-none min-h-[120px]"
+            placeholder="Write something exciting for the members..."
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+          />
+
+          <div className="mt-3 flex justify-end">
+            <Button
+              onClick={addNotice}
+              isLoading={loading}
+              disabled={!text.trim()}
+              className="bg-indigo-600 hover:bg-indigo-500"
+            >
+              <Plus size={16} className="mr-2" /> Post Now
+            </Button>
           </div>
         </div>
       </Card>
 
-      {/* Notices list */}
-      <div className="space-y-6">
-        <h3 className="text-lg font-semibold text-white border-b border-white/5 pb-2">
-          Recent Broadcasts
-        </h3>
-
-        {notices.length === 0 && (
-          <div className="text-center py-12 bg-white/5 rounded-xl border border-dashed border-white/10">
-            <p className="text-slate-500">No notices yet. Be the first to post!</p>
-          </div>
-        )}
-
-        <div className="grid gap-4">
-          {notices.map((notice) => (
-            <Card
-              key={notice.notice_id}
-              className="hover:bg-slate-800/60 transition-all duration-300 group border-l-4 border-l-indigo-500"
-            >
-              <div className="flex items-start justify-between">
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center text-slate-300 font-bold border border-white/5 shadow-inner">
-                    <Megaphone size={20} className="text-indigo-400" />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="bg-indigo-500/10 text-indigo-300 px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider border border-indigo-500/20">
-                        {notice.type || "General"}
-                      </span>
-                      <span className="text-xs text-slate-500 flex items-center gap-1">
-                        <Clock size={12} /> {formatDateTime(notice.createdAt)}
-                      </span>
-                    </div>
-                    <p className="text-slate-200 leading-relaxed font-medium">
-                      {formatNoticeText(notice.purpose)}
-                    </p>
-                  </div>
+      {/* Notices */}
+      <div className="space-y-4">
+        {notices.map((notice) => (
+          <Card
+            key={notice.notice_id}
+            className="border-l-4 border-indigo-500"
+          >
+            <div className="flex justify-between">
+              <div>
+                <div className="flex gap-2 items-center mb-1">
+                  <span className="text-xs text-indigo-300 uppercase font-bold">
+                    {notice.type || "General"}
+                  </span>
+                  <span className="text-xs text-slate-500 flex items-center gap-1">
+                    <Clock size={12} /> {formatDateTime(notice.createdAt)}
+                  </span>
                 </div>
-
-                <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 h-8 w-8 p-0 grid place-items-center rounded-full"
-                  >
-                    <Trash2 size={16} />
-                  </Button>
-                </div>
+                <p className="text-slate-200">
+                  {formatNoticeText(notice.purpose)}
+                </p>
               </div>
-            </Card>
-          ))}
-        </div>
+
+              <Button variant="ghost" size="sm">
+                <Trash2 size={16} />
+              </Button>
+            </div>
+          </Card>
+        ))}
       </div>
     </div>
   );
