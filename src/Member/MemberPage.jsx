@@ -7,7 +7,7 @@ export function MemberPage({ onLogout }) {
   const menuItems = [
     { label: "Dashboard", path: "/member", icon: LayoutDashboard },
     { label: "Notices", path: "/member/notices", icon: Bell },
-    { label: "Loan Requests", path: "/member/loans", icon: FileText },
+    { label: "Loan History", path: "/member/loans", icon: FileText },
     { label: "Contact", path: "/member/contacts", icon: User },
     { label: "Create Request", path: "/member/createrequest", icon: PlusCircle },
   ];
