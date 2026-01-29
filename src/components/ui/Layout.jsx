@@ -4,13 +4,18 @@ import { cn } from "../../lib/utils";
 import { Menu, X, LogOut, Bell } from "lucide-react";
 import { Button } from "./Button";
 import logo from "../../assets/logo.png";
+import { motion } from "motion/react"
 
 export function Layout({ children, role = "member", onLogout, menuItems = [] }) {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
 
   return (
-    <div className="min-h-screen flex bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-slate-950">
+    <motion.div
+    initial={{opacity:0,x:-50}}
+    animate={{opacity:1,x:0}}
+    transition={{duration:1,ease:'easeOut'}}
+    className="min-h-screen flex bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-slate-950">
 
       {/* Mobile Backdrop */}
       {isSidebarOpen && (
@@ -119,6 +124,6 @@ export function Layout({ children, role = "member", onLogout, menuItems = [] }) 
           </div>
         </main>
       </div>
-    </div>
+    </motion.div>
   );
 }

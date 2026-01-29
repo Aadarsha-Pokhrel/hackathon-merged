@@ -3,7 +3,7 @@ import { Button } from './ui/Button';
 import { Input } from './ui/Input';
 import { Card } from './ui/Card';
 import { User, Lock, ArrowRight, ShieldCheck, Users } from 'lucide-react';
-
+import logo from "../assets/logo.png"
 const LoginScreen = ({ onLogin, onSwitchToRegister }) => {
   const [form, setForm] = useState({ username: '', password: '', role: 'member' });
   const [error, setError] = useState('');
@@ -29,7 +29,10 @@ const LoginScreen = ({ onLogin, onSwitchToRegister }) => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-[url('https://images.unsplash.com/photo-1639322537228-f710d846310a?q=80&w=2832&auto=format&fit=crop')] bg-cover bg-center">
+<div
+  className="min-h-screen flex items-center justify-center p-4 bg-cover bg-center"
+  style={{ backgroundImage: `url(${logo})` }}
+>
       <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm"></div>
       
       <Card className="w-full max-w-lg relative z-10 overflow-hidden border-white/10 shadow-2xl shadow-indigo-500/20">
@@ -37,7 +40,7 @@ const LoginScreen = ({ onLogin, onSwitchToRegister }) => {
 
         <div className="text-center mb-8">
           <div className="mx-auto w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-cyan-500 flex items-center justify-center mb-4 shadow-lg shadow-indigo-500/25">
-             <ShieldCheck className="text-white" size={32} />
+             <img src={logo} alt="" />
           </div>
           <h2 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">
             Welcome Back
