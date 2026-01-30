@@ -183,7 +183,7 @@ const Contacts = () => {
             whileHover={{ scale: 1.1 }}
             className="mt-1 flex items-center gap-1 text-xs font-semibold px-3 py-1 rounded-full bg-red-500/20 text-red-400 border border-red-500/30"
           >
-            👑 Admin
+             Admin
           </motion.span>
 
           {/* Phone */}
@@ -316,7 +316,7 @@ const Contacts = () => {
             variants={headerVariants}
             className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-red-400 to-pink-400 text-center tracking-wide"
           >
-            👑 Administrators
+             Administrators
           </motion.h2>
 
           <motion.div 

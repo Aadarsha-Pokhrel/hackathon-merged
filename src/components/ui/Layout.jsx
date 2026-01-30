@@ -1,14 +1,41 @@
-import { useState } from "react";
+import { useState, useEffect } from "react"; // ADD useEffect here
 import { Link, useLocation } from "react-router-dom";
+import axios from "axios"; // ADD axios import
 import { cn } from "../../lib/utils";
 import { Menu, X, LogOut, Bell } from "lucide-react";
 import { Button } from "./Button";
 import logo from "../../assets/logo.png";
-import { motion } from "motion/react"
+import { motion } from "framer-motion"; // CHANGE from "motion/react" to "framer-motion""
 
 export function Layout({ children, role = "member", onLogout, menuItems = [] }) {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
+   const [name, setName] = useState("")
   const location = useLocation();
+  // Fetch dashboard data
+useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await axios.get("http://localhost:8080/dashboard", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        // Extract name
+        const userName = res.data.name;
+        setName(userName);
+        
+        // Store full data if needed
+       
+        
+      } catch (err) {
+        console.error("Error fetching dashboard data:", err);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
 
   return (
     <motion.div
@@ -108,7 +135,7 @@ export function Layout({ children, role = "member", onLogout, menuItems = [] }) 
             {/* Role Circle */}
             <div className="flex items-center gap-3 pl-4 border-l border-white/10">
               <div className="hidden md:block text-right">
-                <div className="text-sm font-medium text-white">{role}</div>
+                <div className="text-sm font-medium text-white">{name}</div>
               </div>
               <div className="w-10 h-10 rounded-full bg-gradient-to-r from-slate-700 to-slate-600 border-2 border-slate-800 shadow-md flex items-center justify-center text-white font-bold text-lg">
                 {role === "admin" ? "A" : "M"}

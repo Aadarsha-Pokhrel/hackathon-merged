@@ -1,418 +1,354 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { Card } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
 import {
   Coins,
-  CheckCircle,
-  XCircle,
   Clock,
   Check,
   X,
-  History,
   Activity,
+  History,
+  CheckCircle,
+  XCircle,
 } from "lucide-react";
-import { motion } from "motion/react";
+import { motion } from "framer-motion";
+
 const API = "http://localhost:8080";
 
 export function LoanRequestPage() {
   const [requests, setRequests] = useState([]);
-  const [history, setHistory] = useState([]);
   const [loans, setLoans] = useState([]);
+  const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [processingLoan, setProcessingLoan] = useState(null);
+
+  const authHeader = {
+    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+  };
+
+  // Animation variants
+  const headerVariants = {
+    hidden: { opacity: 0, y: -20 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: {
+        duration: 0.5,
+        ease: "easeOut"
+      }
+    }
+  };
+
   const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1, // Delay between each child animation
-      delayChildren: 0.3,    // Delay before first child starts
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.2,
+      }
     }
-  }
-};
+  };
 
-const cardVariants = {
-  hidden: { 
-    opacity: 0, 
-    y: 20,
-    scale: 0.95 
-  },
-  visible: { 
-    opacity: 1, 
-    y: 0,
-    scale: 1,
-    transition: {
-      duration: 0.4,
-      ease: "easeOut"
+  const cardVariants = {
+    hidden: { 
+      opacity: 0, 
+      y: 20,
+      scale: 0.95 
+    },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      scale: 1,
+      transition: {
+        duration: 0.4,
+        ease: "easeOut"
+      }
     }
-  }
-};
+  };
 
-  // -----------------------------
-  // Fetch ALL data from backend
-  // -----------------------------
-  // -----------------------------
-  // Fetch ALL data from backend
-  // -----------------------------
+  const tableVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: {
+        duration: 0.5,
+        delay: 0.2
+      }
+    }
+  };
+
+  const rowVariants = {
+    hidden: { opacity: 0, x: -20 },
+    visible: { 
+      opacity: 1, 
+      x: 0,
+      transition: {
+        duration: 0.3
+      }
+    }
+  };
+
+  /* -------------------- helpers -------------------- */
+  const timeAgo = (date) => {
+    if (!date) return "";
+    const diff = (Date.now() - new Date(date)) / 1000;
+    if (diff < 60) return `${Math.floor(diff)}s ago`;
+    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+    return `${Math.floor(diff / 86400)}d ago`;
+  };
+
+  /* -------------------- fetch -------------------- */
   const fetchData = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
-
-    const authHeader = { headers: { Authorization: `Bearer ${token}` } };
-    // Only set loading on initial fetch to avoid flickering on updates
-    if (requests.length === 0) setLoading(true);
-
     try {
-      const [reqRes, histRes, loanRes] = await Promise.all([
+      const [reqRes, loanRes, histRes] = await Promise.all([
         axios.get(`${API}/admin/loan-requests`, authHeader),
-        axios.get(`${API}/admin/loan-history`, authHeader),
         axios.get(`${API}/admin/loans/active`, authHeader),
+        axios.get(`${API}/admin/loan-history`, authHeader),
       ]);
 
-      setRequests(
-        (reqRes.data || []).sort(
-          (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
-        ),
-      );
-      setHistory(
-        (histRes.data || []).sort(
-          (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
-        ),
-      );
-
-      const enrichedLoans = (loanRes.data || [])
-        .map((l) => {
-          const fromHistory = histRes.data.find(
-            (h) => h.loanReqId === l.id || h.loanId === l.id,
-          );
-          return {
-            ...l,
-            users: fromHistory?.users ?? l.users,
-            principal: fromHistory?.Amount ?? l.principal,
-            startDate: l.startDate ?? fromHistory?.createdAt,
-          };
-        })
-        .sort((a, b) => new Date(b.startDate) - new Date(a.startDate)); // Latest active loans first
-
-      setLoans(enrichedLoans);
-    } catch (err) {
-      console.error("Failed to load loans:", err);
+      setRequests(reqRes.data ?? []);
+      setLoans(loanRes.data ?? []);
+      setHistory(histRes.data ?? []);
+    } catch (e) {
+      console.error("Failed to load loan data", e);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchData(); // call once on mount
+    fetchData();
   }, []);
 
-  // -----------------------------
-  // Approve / Reject Loan
-  // -----------------------------
-  const handleAction = async (id, action) => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
-
-    const authHeader = { headers: { Authorization: `Bearer ${token}` } };
+  /* -------------------- approve / reject -------------------- */
+  const handleAction = async (loanReqId, action) => {
+    setProcessingLoan(loanReqId);
 
     try {
-      await axios.post(`${API}/admin/${action}/${id}`, {}, authHeader);
+      await axios.post(
+        `${API}/admin/${action}/${loanReqId}`,
+        {},
+        authHeader,
+      );
 
-      // Re-fetch data to ensure we have the correct Loan IDs from the backend
-      // This prevents "Loan not found" errors when trying to Mark as Paid immediately
-      await fetchData();
-    } catch (err) {
-      console.error(`Failed to ${action} loan`, err);
+      // ✅ GUARANTEED FIX — FULL PAGE REFRESH
+      window.location.reload();
+
+    } catch (e) {
+      console.error(`Failed to ${action} loan`, e);
+      setProcessingLoan(null);
     }
   };
 
-  // -----------------------------
-  // Mark loan as paid
-  // -----------------------------
+  /* -------------------- mark paid -------------------- */
   const markAsPaid = async (loanId, userId) => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
-
-    const authHeader = { headers: { Authorization: `Bearer ${token}` } };
-
     try {
       await axios.post(
         `${API}/admin/loans/${loanId}/${userId}/mark-paid`,
         {},
         authHeader,
       );
-      // Refresh data
-      // For simplicity in this new version, ideally we would optimistically update state
-      // But re-fetching is safer for data consistency
       window.location.reload();
-    } catch (err) {
-      console.error("Failed to mark loan as paid", err);
+    } catch (e) {
+      console.error("Failed to mark paid", e);
     }
   };
 
-  // -----------------------------
-  // Time formatter
-  // -----------------------------
-  const timeAgo = (date) => {
-    if (!date) return "";
-    const diff = (new Date() - new Date(date)) / 1000; // Removed extra processing, assuming ISO from backend
-    if (isNaN(diff)) {
-      // Fallback for different date formats if needed
-      const diff2 = (new Date() - new Date(date + "T00:00:00")) / 1000;
-      if (!isNaN(diff2)) return formatDiff(diff2);
-      return date;
-    }
-    return formatDiff(diff);
-  };
-
-  const formatDiff = (diff) => {
-    if (diff < 60) return `${Math.max(0, Math.floor(diff))}s ago`;
-    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-    return `${Math.floor(diff / 86400)}d ago`;
-  };
-
-  if (loading)
+  if (loading) {
     return (
-      <div className="text-center py-20 text-slate-500">
-        Loading dashboard...
+      <div className="flex justify-center items-center min-h-[300px]">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="h-10 w-10 animate-spin rounded-full border-4 border-indigo-500 border-t-transparent"
+        />
       </div>
     );
-
-  console.log(history);
+  }
 
   return (
     <div className="space-y-10">
-      <motion.h1
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, delay: 0.7 }}
-        viewport={{ once: true }}
+      <motion.h1 
+        variants={headerVariants}
+        initial="hidden"
+        animate="visible"
         className="text-2xl font-bold text-white flex items-center gap-2"
       >
         <Coins className="text-amber-400" /> Loan Management
       </motion.h1>
 
-      {/* Pending Requests */}
-      <section className="space-y-4">
-        <h2 className="text-lg font-semibold text-slate-200 flex items-center gap-2">
-          <Clock size={16} className="text-sky-400" /> Pending Requests
-          <span className="text-xs font-normal text-slate-500 bg-slate-800 px-2 py-0.5 rounded-full">
-            {requests.filter((r) => r.status === "pending").length}
-          </span>
-        </h2>
-        {requests.filter((r) => r.status === "pending").length === 0 ? (
-          <div className="text-center py-8 bg-white/5 rounded-xl border border-dashed border-white/10 text-slate-500 text-sm">
-            No pending requests
-          </div>
-        ) : (
-          <motion.div
-          variants={containerVariants}
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true, margin: "-100px" }}
-          className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-            {requests.map(
-              (r, index) =>
-                r.status === "pending" && (
-                  <motion.div
-                   variants={cardVariants}
-                  >
-                    <Card
-                      key={`req-${r.loanReqId ?? index}`}
-                      className="border-sky-500/20 shadow-sky-500/5"
-                    >
-                      <div className="flex justify-between items-start mb-4">
-                        <div>
-                          <p className="font-bold text-white text-lg">
-                            {r.users?.name || "Unknown"}
-                          </p>
-                          <p className="text-xs text-slate-400">
-                            {timeAgo(r.createdAt)}
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-2xl font-bold text-white">
-                            NPR {r.Amount?.toLocaleString() ?? "N/A"}
-                          </p>
-                          <p className="text-xs text-slate-500 uppercase tracking-wider">
-                            Requested
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex gap-2 mt-4">
-                        <Button
-                          className="flex-1 bg-emerald-500 hover:bg-emerald-600 border-emerald-600"
-                          onClick={() => handleAction(r.loanReqId, "approve")}
-                        >
-                          <Check size={16} className="mr-1" /> Approve
-                        </Button>
-                        <Button
-                          className="flex-1"
-                          variant="danger"
-                          onClick={() => handleAction(r.loanReqId, "reject")}
-                        >
-                          <X size={16} className="mr-1" /> Reject
-                        </Button>
-                      </div>
-                    </Card>
-                  </motion.div>
-                ),
-            )}
-          </motion.div>
-        )}
-      </section>
+      {/* ---------------- Pending ---------------- */}
+      <section>
+        <motion.h2 
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.4, delay: 0.2 }}
+          className="flex items-center gap-2 text-slate-300 mb-3"
+        >
+          <Clock size={16} /> Pending Requests
+        </motion.h2>
 
-      {/* Active Loans */}
-     
-<section className="space-y-4">
-  <h2 className="text-lg font-semibold text-slate-200 flex items-center gap-2">
-    <Activity size={16} className="text-emerald-400" /> Active Loans
-  </h2>
-  {loans.filter((l) => {
-    const status = l.status?.toLowerCase() || "";
-    return (
-      (status === "active" || status === "approved") &&
-      status !== "rejected"
-    );
-  }).length === 0 ? (
-    <div className="text-center py-8 bg-white/5 rounded-xl border border-dashed border-white/10 text-slate-500 text-sm">
-      No active loans
-    </div>
-  ) : (
-    <motion.div 
-      variants={containerVariants}
-      initial="hidden"              // ADD THIS
-      whileInView="visible"         // ADD THIS
-      viewport={{ once: true }}     // ADD THIS
-      className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"
-    >
-      {loans.map((l, index) => {
-        const status = l.status?.toLowerCase() || "";
-        const isRejected = status === "rejected";
-        const isApproved = status === "active" || status === "approved";
-
-        if (!isApproved || isRejected) return null;
-
-        return (
-          <motion.div
-            key={`loan-${index}`}  // MOVE key HERE
-            variants={cardVariants}
-          >
-            <Card
-              className="border-emerald-500/20 shadow-emerald-500/5 hover:bg-emerald-500/5 transition-colors"
-            >
-              <div className="flex justify-between items-start mb-4">
-                <div>
-                  <p className="font-bold text-white text-lg">
-                    {l.users?.name || "Unknown"}
-                  </p>
-                  <p className="text-xs text-slate-400">
-                    Since {timeAgo(l.startDate)}
-                  </p>
-                </div>
-                <div className="text-right">
-                  <p className="text-2xl font-bold text-emerald-400">
-                    NPR {l.principal?.toLocaleString() ?? "N/A"}
-                  </p>
-                  <p className="text-xs text-slate-500 uppercase tracking-wider">
-                    Principal
-                  </p>
-                </div>
-              </div>
-              <Button
-                className="w-full mt-2 bg-emerald-600 hover:bg-emerald-500 shadow-lg shadow-emerald-500/20 text-white font-semibold py-3"
-                onClick={() => markAsPaid(l.id, l.users?.userID)}
-              >
-                <CheckCircle size={18} className="mr-2" /> Mark as Paid
-              </Button>
-            </Card>
-          </motion.div>
-        );
-      })}
-    </motion.div>
-  )}
-</section>
-
-      {/* Loan History */}
-      {/* Loan History */}
-<section className="space-y-4">
-  <h2 className="text-lg font-semibold text-slate-200 flex items-center gap-2">
-    <History size={16} className="text-slate-400" /> Loan History
-  </h2>
-
-  <motion.div 
-    initial={{ opacity: 0, y: 20 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.5, delay: 0.2 }}
-    viewport={{ once: true }}
-    className="bg-slate-900/50 rounded-xl overflow-hidden border border-white/5"
-  >
-    {history.length === 0 ? (
-      <div className="text-center py-8 text-slate-500 text-sm">
-        No loan history
-      </div>
-    ) : (
-      <table className="w-full text-sm text-left">
-        <thead className="bg-white/5 text-slate-400 font-medium">
-          <tr>
-            <th className="px-4 py-3">Borrower</th>
-            <th className="px-4 py-3">Amount</th>
-            <th className="px-4 py-3">Status</th>
-            <th className="px-4 py-3">Date</th>
-          </tr>
-        </thead>
-        <motion.tbody 
+        <motion.div 
           variants={containerVariants}
           initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.2 }}
-          className="divide-y divide-white/5 text-slate-300"
+          animate="visible"
+          className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"
         >
-          {history.map((h, index) => (
-            <motion.tr
-              key={`history-${index}`}
+          {requests
+            .filter(r => r.status === "pending")
+            .map(r => (
+              <motion.div
+                key={r.loanReqId}
+                variants={cardVariants}
+              >
+                <Card>
+                  <div className="flex justify-between mb-4">
+                    <div>
+                      <p className="font-bold text-white">
+                        {r.users?.name ?? "Unknown"}
+                      </p>
+                      <p className="text-xs text-slate-400">
+                        {timeAgo(r.createdAt)}
+                      </p>
+                    </div>
+                    <p className="text-xl font-bold text-white">
+                      NPR {r.Amount?.toLocaleString()}
+                    </p>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <Button
+                      className="flex-1 bg-emerald-500"
+                      disabled={processingLoan === r.loanReqId}
+                      onClick={() => handleAction(r.loanReqId, "approve")}
+                    >
+                      <Check size={16} /> Approve
+                    </Button>
+                    <Button
+                      variant="danger"
+                      className="flex-1"
+                      disabled={processingLoan === r.loanReqId}
+                      onClick={() => handleAction(r.loanReqId, "reject")}
+                    >
+                      <X size={16} /> Reject
+                    </Button>
+                  </div>
+                </Card>
+              </motion.div>
+            ))}
+        </motion.div>
+      </section>
+
+      {/* ---------------- Active ---------------- */}
+      <section>
+        <motion.h2 
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.4, delay: 0.4 }}
+          className="flex items-center gap-2 text-slate-300 mb-3"
+        >
+          <Activity size={16} /> Active Loans
+        </motion.h2>
+
+        <motion.div 
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"
+        >
+          {loans.map(l => (
+            <motion.div
+              key={l.id}
               variants={cardVariants}
-              className="hover:bg-white/5 transition-colors"
             >
-              <td className="px-4 py-3 font-medium text-white">
-                {h.users?.name || "Unknown"}
-              </td>
-              <td className="px-4 py-3">
-                NPR {h.Amount?.toLocaleString() ?? "N/A"}
-              </td>
-              <td className="px-4 py-3">
-                <span
-                  className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-semibold ${
-                    h.status === "Approved"
-                      ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                      : h.status === "Rejected"
-                        ? "bg-rose-500/10 text-rose-400 border border-rose-500/20"
-                        : h.status === "PAID"
-                          ? "bg-yellow-500/10 text-yellow-400 border border-yellow-500/20"
-                          : "bg-slate-500/10 text-slate-400"
-                  }`}
+              <Card className="border-emerald-500/20">
+                <div className="flex justify-between mb-4">
+                  <div>
+                    <p className="font-bold text-white">
+                      {l.users?.name ?? "Unknown"}
+                    </p>
+                    <p className="text-xs text-slate-400">
+                      Since {timeAgo(l.startDate)}
+                    </p>
+                  </div>
+                  <p className="text-xl font-bold text-emerald-400">
+                    NPR {l.principal?.toLocaleString()}
+                  </p>
+                </div>
+
+                <Button
+                  className="w-full bg-emerald-600"
+                  onClick={() =>
+                    markAsPaid(l.id, l.users?.userID)
+                  }
                 >
-                  {h.status === "Approved" ? (
-                    <CheckCircle size={10} />
-                  ) : h.status === "Rejected" ? (
-                    <XCircle size={10} />
-                  ) : h.status === "PAID" ? (
-                    <CheckCircle size={10} />
-                  ) : null}
-                  {h.status}
-                </span>
-              </td>
-              <td className="px-4 py-3 text-slate-500">
-                {timeAgo(h.createdAt)}
-              </td>
-            </motion.tr>
+                  <CheckCircle size={16} /> Mark as Paid
+                </Button>
+              </Card>
+            </motion.div>
           ))}
-        </motion.tbody>
-      </table>
-    )}
-  </motion.div>
-</section>
+        </motion.div>
+      </section>
+
+      {/* ---------------- History ---------------- */}
+      <section>
+        <motion.h2 
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.4, delay: 0.6 }}
+          className="flex items-center gap-2 text-slate-300 mb-3"
+        >
+          <History size={16} /> Loan History
+        </motion.h2>
+
+        <motion.div 
+          variants={tableVariants}
+          initial="hidden"
+          animate="visible"
+          className="overflow-hidden rounded-xl border border-white/5"
+        >
+          <table className="w-full text-sm">
+            <thead className="bg-white/5 text-slate-400">
+              <tr>
+                <th className="p-3">Borrower</th>
+                <th className="p-3">Amount</th>
+                <th className="p-3">Status</th>
+                <th className="p-3">Date</th>
+              </tr>
+            </thead>
+            <motion.tbody 
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+              className="divide-y divide-white/5"
+            >
+              {history.map(h => (
+                <motion.tr 
+                  key={h.id}
+                  variants={rowVariants}
+                >
+                  <td className="p-3 text-white">{h.users?.name}</td>
+                  <td className="p-3">
+                    NPR {h.Amount?.toLocaleString()}
+                  </td>
+                  <td className="p-3">
+                    {h.status === "Approved" && <CheckCircle size={12} />}
+                    {h.status === "Rejected" && <XCircle size={12} />}
+                    {h.status}
+                  </td>
+                  <td className="p-3 text-slate-500">
+                    {timeAgo(h.createdAt)}
+                  </td>
+                </motion.tr>
+              ))}
+            </motion.tbody>
+          </table>
+        </motion.div>
+      </section>
     </div>
   );
 }
